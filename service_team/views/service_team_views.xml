@@ -1,0 +1,116 @@
+<odoo>
+    <data>
+        <!-- Case Teams Form View -->
+        <record id="service_team_view_form" model="ir.ui.view">
+            <field name="name">service.team.form</field>
+            <field name="model">service.team</field>
+            <field name="arch" type="xml">
+                <form string="Service Team">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                                <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                            </button>
+                            <button name="open_jobs" string="Jobs" type="object" class="oe_stat_button"
+                                    icon="fa-pencil-square-o">
+                            </button>
+                        </div>
+                        <field name="image_small" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only" string="Service team"/>
+                            <h1>
+                                <field name="name" placeholder="Serviceteam name..."/>
+                            </h1>
+                            <div name="options_active"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="user_id" widget="many2one_avatar"/>
+                                <field name="mobile" widget="phone"/>
+                                <field name="email" widget="email"/>
+                            </group>
+                            <group>
+                                <field name="driver_id" widget="many2one_avatar_employee"/>
+                                <field name="team_vehicle"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Team Members">
+                                <group>
+                                    <field name="member_ids" widget="many2many_kanban" options="{'not_delete': True}"
+                                           nolabel="1">
+                                        <kanban quick_create="false" create="true" delete="true">
+                                            <field name="name"/>
+                                            <templates>
+                                                <t t-name="kanban-box">
+                                                    <div class="oe_kanban_global_click" style="position: relative">
+                                                        <a t-if="! read_only_mode" type="delete"
+                                                           style="position: absolute; right: 0; padding: 4px; diplay: inline-block">
+                                                            X
+                                                        </a>
+                                                        <div class="oe_module_vignette">
+                                                            <img t-att-src="kanban_image('hr.employee', 'image_small', record.id.value)"
+                                                                 class="oe_avatar oe_kanban_avatar_smallbox"/>
+                                                            <div class="oe_module_desc">
+                                                                <field name="name"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                            </templates>
+                                        </kanban>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- Case Teams Tree View -->
+        <record id="service_team_view_tree" model="ir.ui.view">
+            <field name="name">service.team.tree</field>
+            <field name="model">service.team</field>
+            <field name="arch" type="xml">
+                <tree string="Service Team">
+                    <field name="image_small" widget="image" height="30px" string=""/>
+                    <field name="name" decoration-bf="1"/>
+                    <field name="active" invisible="1"/>
+                    <field name="user_id" widget="many2one_avatar"/>
+                    <field name="driver_id" widget="many2one_avatar_employee"/>
+                    <field name="mobile"/>
+                    <field name="email"/>
+                    <field name="team_vehicle"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="service_team_act" model="ir.actions.act_window">
+            <field name="name">Service Teams</field>
+            <field name="res_model">service.team</field>
+            <field name="view_id" ref="service_team_view_tree"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click here to define a new service team.
+                </p>
+                <p>
+                    Use service team to organize your different service team person or
+                    departments into separate teams.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="main_menu_service_team" name="Reports"/>
+        <menuitem id="sub_menu_service_team" parent="main_menu_service_team" name="Service Team" sequence="7"/>
+        <menuitem id="menu_service_team_act" parent="sub_menu_service_team" action="service_team_act" sequence="1"
+                  name="Service Team"/>
+
+    </data>
+</odoo>

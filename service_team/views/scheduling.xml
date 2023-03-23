@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- calender view for sceduling -->
+        <record id="view_calendar_by_customer_calendar" model="ir.ui.view">
+            <field name="name">calendar.event.calendar</field>
+            <field name="model">calendar.event</field>
+            <field name="priority">60</field>
+            <field name="arch" type="xml">
+                <calendar string="Scheduling" color="partner_id" date_start="start" date_stop="stop">
+                    <field name="service_team"/>
+                    <field name="partner_id"/>
+                    <field name="location"/>
+                </calendar>
+            </field>
+        </record>
+
+        <record id="view_calendar_by_state_calendar" model="ir.ui.view">
+            <field name="name">calendar.event.calendar</field>
+            <field name="model">calendar.event</field>
+            <field name="priority">60</field>
+            <field name="arch" type="xml">
+                <calendar string="Scheduling" color="state" date_start="start" date_stop="stop">
+                    <field name="service_team"/>
+                    <field name="partner_id"/>
+                    <field name="location"/>
+                </calendar>
+            </field>
+        </record>
+        <!-- job by partner start -->
+
+        <record id="job_cal_partner_act" model="ir.actions.act_window">
+            <field name="name">Jobs by Customer</field>
+            <field name="res_model">calendar.event</field>
+            <field name="view_mode">tree,form,calendar</field>
+
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click here to Schedule a new Job.
+                </p>
+                <p>
+                    Use job to a service team.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_job_event_part_calendar" model="ir.actions.act_window">
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">calendar.event</field>
+<!--            <field name="sequence" eval="1"/>-->
+            <field name="view_mode">calendar</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('service_team.view_calendar_by_customer_calendar')}),
+            ]"/>;
+        </record>
+
+        <record id="action_view_job_partner_event_tree" model="ir.actions.act_window">
+            <field name="res_model">calendar.event</field>
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">tree</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('service_team.cal_scheduling_view_tree')}),
+            ]"/>
+        </record>
+
+        <record id="action_view_job_partner_event_form" model="ir.actions.act_window">
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">calendar.event</field>
+            <field name="sequence" eval="3"/>
+            <field name="view_mode">form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('service_team.view_cal_scheduling_form')}),
+            ]"/>
+        </record>
+
+
+        <!-- job by partner end -->
+
+
+        <!-- job by state start -->
+
+        <record id="job_cal_state_act" model="ir.actions.act_window">
+            <field name="name">Jobs by Status</field>
+            <field name="res_model">calendar.event</field>
+            <field name="view_mode">tree,form,calendar</field>
+
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click here to Schedule a new Job.
+                </p>
+                <p>
+                    Use job to a service team.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_job_event_state_calendar" model="ir.actions.act_window">
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">calendar.event</field>
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">calendar</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('service_team.view_calendar_by_state_calendar')}),
+            ]"/>
+        </record>
+
+        <record id="action_view_job_state_event_tree" model="ir.actions.act_window">
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">calendar.event</field>
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">tree</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('service_team.cal_scheduling_view_tree')}),
+            ]"/>
+        </record>
+
+        <record id="action_view_job_state_event_form" model="ir.actions.act_window">
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">calendar.event</field>
+            <field name="sequence" eval="3"/>
+            <field name="view_mode">form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('service_team.view_cal_scheduling_form')}),
+            ]"/>
+        </record>
+
+
+        <!-- job by state end -->
+
+
+        <!-- <menuitem id="sub_menu_diff_jobs" parent="main_menu_service_team" name="Jobs Scheduling"/> -->
+
+        <!--  <menuitem id="mail_menu_job_by_customer_calendar" sequence="1" parent="sub_menu_diff_jobs" action="job_cal_partner_act" /> -->
+
+
+        <menuitem id="sub_menu_report" parent="main_menu_service_team" name="Jobs Report" sequence="1"/>
+        <menuitem id="job_menu_report" sequence="1" parent="sub_menu_report" action="job_cal_scheduling_act_report"/>
+        <menuitem id="mail_menu_job_by_state_calendar" sequence="2" parent="sub_menu_report"
+                  action="job_cal_state_act"/>
+
+    </data>
+</odoo>

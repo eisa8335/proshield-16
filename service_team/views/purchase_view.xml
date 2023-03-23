@@ -1,0 +1,246 @@
+<openerp>
+    <data>
+        <record id="purchase_order_form_inherit" model="ir.ui.view">
+            <field name="name">Purchase Order Form View Inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//field[@name='date_order']" position="after">
+                        <field name="start_month" invisible="1"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+        <record id="purchase_order_search_inherit_custom" model="ir.ui.view">
+            <field name="name">Purchase Order Search</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[last()]" position="after">
+                    <filter string="January" name="jan"
+                            domain="[('start_month','=',1)]"
+                            help="January"/>
+                    <filter string="Feburary" name="feb"
+                            domain="[('start_month','=',2)]"
+                            help="Feb"/>
+                    <filter string="March" name="mar"
+                            domain="[('start_month','=',3)]"
+                            help="Mar"/>
+                    <filter string="April" name="apr"
+                            domain="[('start_month','=',4)]"
+                            help="april"/>
+                    <filter string="May" name="may"
+                            domain="[('start_month','=',5)]"
+                            help="May"/>
+                    <filter string="June" name="june"
+                            domain="[('start_month','=',6)]"
+                            help="June"/>
+                    <filter string="July" name="jul"
+                            domain="[('start_month','=',7)]"
+                            help="July"/>
+                    <filter string="August" name="aug"
+                            domain="[('start_month','=',8)]"
+                            help="August"/>
+                    <filter string="September" name="sept"
+                            domain="[('start_month','=',9)]"
+                            help="September"/>
+                    <filter string="October" name=""
+                            domain="[('start_month','=',10)]"
+                            help="October"/>
+                    <filter string="November" name="nov"
+                            domain="[('start_month','=',11)]"
+                            help="November"/>
+                    <filter string="December" name="dec"
+                            domain="[('start_month','=',12)]"
+                            help="December"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_move_form_inherit_custom" model="ir.ui.view">
+            <field name="name">Account Move Form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="start_month" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_move_line_form_inherit_custom" model="ir.ui.view">
+            <field name="name">Account Move Line Form</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_move_line_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="start_month" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_payment_search_inherit_custom" model="ir.ui.view">
+            <field name="name">Account Payment Search</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[last()]" position="after">
+                    <separator/>
+                    <filter string="January" name="jan"
+                            domain="[('start_month','=',1)]"
+                            help="January"/>
+                    <filter string="Feburary" name="feb"
+                            domain="[('start_month','=',2)]"
+                            help="Feb"/>
+                    <filter string="March" name="mar"
+                            domain="[('start_month','=',3)]"
+                            help="Mar"/>
+                    <filter string="April" name="apr"
+                            domain="[('start_month','=',4)]"
+                            help="april"/>
+                    <filter string="May" name="may"
+                            domain="[('start_month','=',5)]"
+                            help="May"/>
+                    <filter string="June" name="june"
+                            domain="[('start_month','=',6)]"
+                            help="June"/>
+                    <filter string="July" name="jul"
+                            domain="[('start_month','=',7)]"
+                            help="July"/>
+                    <filter string="August" name="aug"
+                            domain="[('start_month','=',8)]"
+                            help="August"/>
+                    <filter string="September" name="sept"
+                            domain="[('start_month','=',9)]"
+                            help="September"/>
+                    <filter string="October" name=""
+                            domain="[('start_month','=',10)]"
+                            help="October"/>
+                    <filter string="November" name="nov"
+                            domain="[('start_month','=',11)]"
+                            help="November"/>
+                    <filter string="December" name="dec"
+                            domain="[('start_month','=',12)]"
+                            help="December"/>
+                    <sparator/>
+					<filter string="Current Year" name="current_year"
+                            domain="[('date','&gt;=',time.strftime('%Y-01-01')), ('date','&lt;=',time.strftime('%Y-12-31'))]"
+                            help="Current Year"/>
+                    <filter string="Last Year" name="last_year"
+                            domain="[('date','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('date','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"
+                            help="Last Year"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_move_search_inherit_custom" model="ir.ui.view">
+            <field name="name">Account Move Search</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_account_move_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='dummy_account_id']" position="after">
+                    <separator/>
+                    <filter string="January" name="jan"
+                            domain="[('start_month','=',1)]"
+                            help="January"/>
+                    <filter string="Feburary" name="feb"
+                            domain="[('start_month','=',2)]"
+                            help="Feb"/>
+                    <filter string="March" name="mar"
+                            domain="[('start_month','=',3)]"
+                            help="Mar"/>
+                    <filter string="April" name="apr"
+                            domain="[('start_month','=',4)]"
+                            help="april"/>
+                    <filter string="May" name="may"
+                            domain="[('start_month','=',5)]"
+                            help="May"/>
+                    <filter string="June" name="june"
+                            domain="[('start_month','=',6)]"
+                            help="June"/>
+                    <filter string="July" name="jul"
+                            domain="[('start_month','=',7)]"
+                            help="July"/>
+                    <filter string="August" name="aug"
+                            domain="[('start_month','=',8)]"
+                            help="August"/>
+                    <filter string="September" name="sept"
+                            domain="[('start_month','=',9)]"
+                            help="September"/>
+                    <filter string="October" name=""
+                            domain="[('start_month','=',10)]"
+                            help="October"/>
+                    <filter string="November" name="nov"
+                            domain="[('start_month','=',11)]"
+                            help="November"/>
+                    <filter string="December" name="dec"
+                            domain="[('start_month','=',12)]"
+                            help="December"/>
+                    <sparator/>
+                    <filter string="Current Year" name="current_year"
+                            domain="[('start','&gt;=',time.strftime('%Y-01-01')), ('start','&lt;=',time.strftime('%Y-12-31'))]"
+                            help="Current Year"/>
+                    <filter string="Last Year" name="last_year"
+                            domain="[('start','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('start','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"
+                            help="Last Year"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_move_line_search_inherit_custom" model="ir.ui.view">
+            <field name="name">Account Move Search</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='journal_id']" position="after">
+                    <separator/>
+                    <filter string="January" name="jan"
+                            domain="[('start_month','=',1)]"
+                            help="January"/>
+                    <filter string="Feburary" name="feb"
+                            domain="[('start_month','=',2)]"
+                            help="Feb"/>
+                    <filter string="March" name="mar"
+                            domain="[('start_month','=',3)]"
+                            help="Mar"/>
+                    <filter string="April" name="apr"
+                            domain="[('start_month','=',4)]"
+                            help="april"/>
+                    <filter string="May" name="may"
+                            domain="[('start_month','=',5)]"
+                            help="May"/>
+                    <filter string="June" name="june"
+                            domain="[('start_month','=',6)]"
+                            help="June"/>
+                    <filter string="July" name="jul"
+                            domain="[('start_month','=',7)]"
+                            help="July"/>
+                    <filter string="August" name="aug"
+                            domain="[('start_month','=',8)]"
+                            help="August"/>
+                    <filter string="September" name="sept"
+                            domain="[('start_month','=',9)]"
+                            help="September"/>
+                    <filter string="October" name=""
+                            domain="[('start_month','=',10)]"
+                            help="October"/>
+                    <filter string="November" name="nov"
+                            domain="[('start_month','=',11)]"
+                            help="November"/>
+                    <filter string="December" name="dec"
+                            domain="[('start_month','=',12)]"
+                            help="December"/>
+                    <sparator/>
+                    <filter string="Current Year" name="current_year"
+                            domain="[('start','&gt;=',time.strftime('%Y-01-01')), ('start','&lt;=',time.strftime('%Y-12-31'))]"
+                            help="Current Year"/>
+                    <filter string="Last Year" name="last_year"
+                            domain="[('start','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('start','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"
+                            help="Last Year"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

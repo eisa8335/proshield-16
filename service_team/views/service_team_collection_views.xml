@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Case Teams Form View -->
+        <record id="service_team_collection_view_form" model="ir.ui.view">
+            <field name="name">service.team.collection.form</field>
+            <field name="model">service.team.collection</field>
+            <field name="arch" type="xml">
+                <form string="Service Team Collection">
+                    <sheet>
+                        <group>
+                            <field name="name" invisible="1"/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="cash_receivable" widget='monetary'
+                                       options="{'currency_field': 'currency_id'}"/>
+                                <field name="cash_on_hand" widget='monetary'
+                                       options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="collect_cash" widget='monetary'
+                                       options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                        <footer>
+                            <button string="Submit" name="submit_amount" type="object" class="oe_highlight"/>
+                            <button string="Cancel" special="cancel" class="oe_highlight"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="service_team_collection_act" model="ir.actions.act_window">
+            <field name="name">Collect Cash</field>
+            <field name="res_model">service.team.collection</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <!-- Collection Form View -->
+        <record id="team_collection_view_form" model="ir.ui.view">
+            <field name="name">team.collection.form</field>
+            <field name="model">team.collection</field>
+            <field name="arch" type="xml">
+                <form string="Team Collection">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="payment_type"/>
+                                <field name="amount_received" widget='monetary'
+                                       options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="bank_name" attrs="{'invisible': [('payment_type', '!=', 'cheque')]}"/>
+                                <field name="cheque_no" attrs="{'invisible': [('payment_type', '!=', 'cheque')]}"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                        <footer>
+                            <button string="Submit" name="action_submit" type="object" class="oe_highlight"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="team_collection_act" model="ir.actions.act_window">
+            <field name="name">Collection Details</field>
+            <field name="res_model">team.collection</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

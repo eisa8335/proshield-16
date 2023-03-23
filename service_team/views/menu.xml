@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--         Quotation  -->
+        <menuitem id="sub_menu_quotation" parent="main_menu_service_team" name="Quotations" sequence="4"/>
+        <menuitem id="menu_service_quotation" parent="sub_menu_quotation" action="action_service_quotation_tree_view"
+                  sequence="1" name="Quotations Report"/>
+
+        <!--  Contract -->
+        <menuitem id="sub_menu_contracts" parent="main_menu_service_team" name="Contracts" sequence="6"/>
+        <menuitem id="menu_service_contract" parent="sub_menu_contracts" action="action_serice_contract_tree_view"
+                  sequence="1" name="Contracts Report"/>
+
+
+        <!--  Invoices -->
+        <menuitem id="sub_menu_invoices" parent="main_menu_service_team" name="Invoices" sequence="5"/>
+        <menuitem id="menu_service_invoices" parent="sub_menu_invoices" action="account.action_invoice_tree1"
+                  sequence="1" name="Invoice Report"/>
+
+    </data>
+</odoo>

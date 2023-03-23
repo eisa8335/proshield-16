@@ -1,0 +1,222 @@
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="service_quotation_tree_view">
+            <field name="name">service.quotation.tree</field>
+            <field name="model">service.quotation</field>
+            <field name="arch" type="xml">
+                <tree decoration-success="state == 'approved'" decoration-danger="state == 'expired'"
+                      decoration-info="state == 'valid'"
+                      default_order="date desc" sample="1">
+                    <field name="name" decoration-bf="1"/>
+                    <field name="select_service"/>
+                    <field name="partner_id" widget="many2one_avatar"/>
+                    <field name="date" decoration-bf="1"/>
+                    <field name="payment_term_id" optional="show"/>
+                    <field name="validity_id" optional="show"/>
+                    <field name="currency_id" decoration-bf="1"/>
+                    <field name="frequency_id" string="Frequency" optional="show"/>
+                    <field name="amount" string="Total Value" sum="Total" decoration-bf="1"/>
+                    <field name="employee_id" widget="many2one_avatar_employee"/>
+                    <field name="state" widget="badge" string="Status" decoration-success="state == 'approved'"
+                           decoration-danger="state == 'expired'" decoration-info="state == 'valid'"
+                           decoration-muted="state == 'cancelled'"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="service_quotation_search_view">
+            <field name="name">service.quotation.search</field>
+            <field name="model">service.quotation</field>
+            <field name="arch" type="xml">
+                <search string="Search">
+                    <field name="select_service"/>
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="contact_id"/>
+                    <field name="date"/>
+                    <field name="payment_term_id"/>
+                    <field name="validity_id"/>
+                    <field name="amount"/>
+                    <field name="currency_id"/>
+                    <field name="frequency_id" string="Frequency"/>
+                    <field name="callback_id"/>
+                    <field name="employee_id"/>
+                    <filter name="state" string="Valid" domain="[('state','=','valid')]"/>
+                    <filter name="state" string="Expired" domain="[('state','=','expired')]"/>
+                    <filter name="state" string="Approved" domain="[('state','=','approved')]"/>
+                    <filter name="state" string="Cancelled" domain="[('state','=','cancelled')]"/>
+                    <separator/>
+                    <filter string="Today" name="Today" separator="1"
+                            domain="[('date','&gt;=', ((context_today()+datetime.timedelta(days=0)).strftime('%Y-%m-%d'))), ('date','&lt;=', ((context_today()+datetime.timedelta(days=0)).strftime('%Y-%m-%d')))]"
+                            help="Today"/>
+                    <filter string="Yesterday" name="Yesterday" separator="1"
+                            domain="[('date','&gt;=', ((context_today()+datetime.timedelta(days=-1)).strftime('%Y-%m-%d'))), ('date','&lt;=', ((context_today()+datetime.timedelta(days=-1)).strftime('%Y-%m-%d')))]"
+                            help="Yesterday"/>
+                    <separator/>
+                    <filter string="Current Month" name="current_month"
+                            domain="[('date','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('date','&gt;=',time.strftime('%Y-%m-01'))]"/>
+                    <filter string="Last Month" name="last_month"
+                            domain="[('date', '&gt;=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01')),                 ('date', '&lt;', (context_today()).strftime('%Y-%m-01'))]"
+                            help="Records from the previous month"/>
+                    <separator/>
+                    <filter string="January" name="jan"
+                            domain="[('start_month','=',1)]"
+                            help="January"/>
+                    <filter string="February" name="feb"
+                            domain="[('start_month','=',2)]"
+                            help="Feb"/>
+                    <filter string="March" name="mar"
+                            domain="[('start_month','=',3)]"
+                            help="Mar"/>
+                    <filter string="April" name="apr"
+                            domain="[('start_month','=',4)]"
+                            help="april"/>
+                    <filter string="May" name="may"
+                            domain="[('start_month','=',5)]"
+                            help="May"/>
+                    <filter string="June" name="june"
+                            domain="[('start_month','=',6)]"
+                            help="June"/>
+                    <filter string="July" name="jul"
+                            domain="[('start_month','=',7)]"
+                            help="July"/>
+                    <filter string="August" name="aug"
+                            domain="[('start_month','=',8)]"
+                            help="August"/>
+                    <filter string="September" name="sept"
+                            domain="[('start_month','=',9)]"
+                            help="September"/>
+                    <filter string="October" name=""
+                            domain="[('start_month','=',10)]"
+                            help="October"/>
+                    <filter string="November" name="nov"
+                            domain="[('start_month','=',11)]"
+                            help="November"/>
+                    <filter string="December" name="dec"
+                            domain="[('start_month','=',12)]"
+                            help="December"/>
+                    <separator/>
+                    <filter string="Current Year" name="current_year"
+                            domain="[('date','&gt;=',time.strftime('%Y-01-01')), ('date','&lt;=',time.strftime('%Y-12-31'))]"
+                            help="This year"/>
+                    <filter string="Last Year" name="last_year"
+                            domain="[('date','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('date','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"
+                            help="Last year"/>
+                    <group expand="0" string="Group By">
+                        <filter name="status" string="Status" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="service_quotation_form_view">
+            <field name="name">service.quotation.form</field>
+            <field name="model">service.quotation</field>
+            <field name="arch" type="xml">
+                <form string="Quotation">
+                    <header>
+                        <button string="Approve" name="approve" type="object" class="oe_highlight" states="valid" confirm="Are you sure you want to Approve this Quotation?"/>
+                        <button string="Refresh" name="refresh" type="object" class="oe_highlight"/>
+                        <button string="Create Contract" name="create_contract" type="object" class="oe_highlight"
+                                states="approved"/>
+                        <button string="Cancel" name="cancel" type="object" class="oe_highlight"
+                                states="valid,approved,expired" confirm="Are you sure you want to Cancel this Quotation?"/>
+                        <button string="Re-instate" name="reinstate" type="object" class="oe_highlight"
+                                states="cancelled"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="select_service" widget="radio"/>
+                                <field name="residential"/>
+                                <field name="partner_id" widget="many2one_avatar"/>
+                                <field name="contact_id"
+                                       domain="[('parent_id', '=', partner_id)]" widget="many2one_avatar"/>
+                                <field name="date"/>
+                                <field name="payment_term_id"/>
+                                <field name="validity_id"/>
+                                <field name="start_month"/>
+                            </group>
+                            <group>
+                                <field name="amount"/>
+                                <field name="currency_id"/>
+                                <field name="next_execution_date"/>
+                                <field name="product_id"
+                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"
+                                       domain="[('type', '=', 'service')]"/>
+                                <!--                                <field name="job_area_id"-->
+                                <!--                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>-->
+                                <field name="service_description" attrs="{'invisible':[('residential','=',False)]}"/>
+                                <!--                                <field name="job_type_id"-->
+                                <!--                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>-->
+                                <field name="followup_visit"
+                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>
+                                <field name="followup_days"
+                                       attrs="{'invisible':[('followup_visit','=',False)],'required':[('followup_visit','=',True)]}"/>
+                                <field name="warranty"
+                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>
+                                <field name="frequency_id" string="Frequency"
+                                       attrs="{'invisible':[('residential','=',True)],'required':[('residential','=',False)]}"/>
+                                <field name="callback_id"/>
+                                <field name="employee_id" widget="many2one_avatar_employee"/>
+                            </group>
+                        </group>
+                        <br/>
+                        <br/>
+                        <group>
+                            <field name="covered_area" placeholder="Covered Areas"/>
+                            <field name="remarks" placeholder="Remarks"/>
+                        </group>
+                        <notebook>
+                            <page string="Scope of Works" attrs="{'invisible':[('residential','=',True)]}">
+                                <field name="scope_of_works"
+                                       attrs="{'invisible':[('residential','=',True)],'required':[('residential','=',False)]}"/>
+                            </page>
+                            <page string="Covered Pests"
+                                  attrs="{'invisible':['|',('residential','=',True), ('select_service','=', 'qds')]}">
+                                <field name="covered_pests"
+                                       attrs="{'invisible':[('residential','=',True)],'required':[('residential','=',False), ('select_service','=', 'qps')]}"/>
+                            </page>
+                            <page string="Contractors Obligations" attrs="{'invisible':[('residential','=',True)]}">
+                                <field name="contractors_obligations"
+                                       attrs="{'invisible':[('residential','=',True)],'required':[('residential','=',False)]}"/>
+                            </page>
+                            <page string="Clients Obligations" attrs="{'invisible':[('residential','=',True)]}">
+                                <field name="client_obligations"
+                                       attrs="{'invisible':[('residential','=',True)],'required':[('residential','=',False)]}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_service_quotation">
+            <field name="name">Quotations</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">service.quotation</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create Your First Quotation.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="service_quotation_menu" sequence="2" action="action_service_quotation" name="Quotations"/>
+
+    </data>
+</odoo>

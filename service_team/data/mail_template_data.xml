@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="mail.template" id="email_template_for_service_quotation">
+            <field name="name">Service Quotation</field>
+            <field name="subject">Quotation</field>
+            <field name="email_from">${(user.email)|safe}</field>
+            <field name="email_to">${(object.partner_id.email)}</field>
+            <field name="lang">${user.lang}</field>
+            <field name="model_id" ref="model_service_quotation"/>
+            <!--            <field name="report_template" ref="report_service_quotation"/>-->
+            <!--            <field name="report_name">Quotation</field>-->
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+        <p>Hi ${object.partner_id.name},</p>
+        <p>Your Quotation is attached below.</p>
+        <p>This is an automated email. Please do not reply to this email. If you have any questions or concerns, kindly contact Premium Admin as soon as possible.</p>
+    ]]>
+            </field>
+        </record>
+
+        <record id="service_quotation_followup_mail_inherit" model="mail.template">
+            <field name="name">Service Quotation Followup</field>
+            <field name="email_from">${(user.email)|safe}</field>
+            <field name="subject">Quotation Followup</field>
+            <field name="model">service.quotation</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="email_to">${ctx.get('email_to')}</field>
+            <field name="body_html">
+                <![CDATA[
+        <p>Hi,</p>
+        <p>Kindly follow up on the below quotation:</p>
+
+        <table width="771" cellspacing="1" cellpadding="4" border="1" height="73">
+            <tbody>
+                <tr style="font-weight:bold;">
+                    <th>S.No</th>
+                    <th>Quotation Date</th>
+                    <th>Quotation</th>
+                    <th>Customer</th>
+                    <th>Quotation Value</th>
+                </tr>
+                % if ctx.get('quotation_list'):
+                    % for values in ctx['quotation_list']:
+                        <tr>
+                            <td valign="middle" align="center">${values['serial']}</td>
+                            <td valign="middle" align="center">${values['date']}<br></td>
+                            <td valign="middle" align="center">${values['name']}</td>
+                            <td valign="middle" align="center">${values['partner_id']}<br></td>
+                            <td valign="middle" align="center">${format_amount(values['amount'], object.currency_id)}<br></td>
+                        </tr>
+                    % endfor
+                % endif
+            </tbody>
+        </table>
+        <br/>
+        <p>Thank you</p>
+        ]]>
+            </field>
+        </record>
+        <record model="mail.template" id="service_contract_followup_mail_inherit">
+            <field name="name">Service Contract Followup</field>
+            <field name="subject">Contract Followup</field>
+            <field name="model">service.contract</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="email_from">${(user.email)|safe}</field>
+            <field name="recipient_ids" eval="[(4,ctx.get('partner_id'))]"/>
+            <field name="body_html">
+                <![CDATA[
+        <p>Hi,</p>
+        <p>Kindly Take The Followup on Below Contract.</p>
+        <table width="771" cellspacing="1" cellpadding="4" border="1" height="73">
+            <tbody>
+                <tr style="font-weight:bold;">
+                    <th>S.No</th>
+                    <th>Contract Start Date</th>
+                    <th>Contract End Date</th>
+                    <th>Contract</th>
+                    <th>Customer</th>
+                    <th>Contract Value</th>
+                </tr>
+                % if ctx.get('quotation_list'):
+                    % for values in ctx['quotation_list']:
+                        <tr>
+                            <td valign="middle" align="center">${values['serial']}</td>
+                            <td valign="middle" align="center">${values['date_start'].strftime('%Y-%m-%d')}<br/></td>
+                            <td valign="middle" align="center">${values['date_end'].strftime('%Y-%m-%d')}<br/></td>
+                            <td valign="middle" align="center">${values['name']}</td>
+                            <td valign="middle" align="center">${values['partner_id'].display_name or ''}<br/></td>
+                            <td valign="middle" align="center">${values['amount']}</td>
+                        </tr>
+                    % endfor
+                % endif
+            </tbody>
+        </table><br/>
+        <p>Thank you</p>
+        ]]>
+            </field>
+        </record>
+
+    </data>
+</odoo>

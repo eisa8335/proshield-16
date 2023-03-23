@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="res_partner_form_view">
+            <field name="name">res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name=&quot;button_box&quot;]" position="inside">
+                    <button name="open_jobs" type="object" class="oe_stat_button"
+                            icon="fa-pencil-square-o">
+                        <field string="Jobs" name="job_count" widget="statinfo"/>
+                    </button>
+                    <button name="open_contracts" type="object" class="oe_stat_button"
+                            icon="fa-pencil-square-o">
+                        <field string="Contracts" name="contract_count" widget="statinfo"/>
+                    </button>
+                </xpath>
+                <field name="street" position="attributes">
+                    <attribute name="required">True</attribute>
+                </field>
+                <field name="street2" position="attributes">
+                    <attribute name="required">True</attribute>
+                </field>
+                <field name="city" position="attributes">
+                    <attribute name="required">True</attribute>
+                </field>
+                <field name="state_id" position="attributes">
+                    <attribute name="required">True</attribute>
+                </field>
+                <field name="country_id" position="attributes">
+                    <attribute name="required">True</attribute>
+                </field>
+                <field name="title" position="attributes">
+                    <attribute name="attrs">
+                        {'required':[('company_type','=','person')]}
+                    </attribute>
+                </field>
+
+                <xpath expr="//notebook[last()]" position="inside">
+                    <page string="Details">
+                        <group>
+                            <group>
+                                <field name="area_id" required="1"/>
+                                <field name="premise_type_id" required="1"/>
+                                <field name="premise_categ_id" required="1"/>
+                                <field name="client_source_id" required="1"/>
+                            </group>
+                        </group>
+
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="proshiel_view_res_partner_filter" model="ir.ui.view">
+            <field name="name">res.partner.select</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_res_partner_filter"/>
+            <field name="arch" type="xml">
+                <search string="Search Partner">
+                    <field name="mobile"/>
+                    <field name="phone"/>
+                    <field name="email"/>
+                </search>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

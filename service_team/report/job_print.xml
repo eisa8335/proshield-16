@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+       
+        
+         <report 
+            id="report_job_print"
+            string="Job"
+            model="calendar.event" 
+            report_type="qweb-pdf"
+            file="service_team.report_job" 
+            name="service_team.report_job" 
+        />
+    </data>
+</odoo>

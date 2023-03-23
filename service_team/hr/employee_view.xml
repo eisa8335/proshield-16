@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="hr_employee_form_view">
+            <field name="name">hr.employee.form</field>
+            <field name="model">hr.employee</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook[last()]" position="inside">
+                    <page string="Documents">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Document Number</th>
+                                    <th>Issue Date</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>Passport</th>
+                                    <td>
+                                        <field name="passport_doc_no"/>
+                                    </td>
+                                    <td>
+                                        <field name="passport_issue_date"/>
+                                    </td>
+                                    <td>
+                                        <field name="passport_expiry_date"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Residence Visa</th>
+                                    <td>
+                                        <field name="visa_doc_no"/>
+                                    </td>
+                                    <td>
+                                        <field name="visa_issue_date"/>
+                                    </td>
+                                    <td>
+                                        <field name="visa_expiry_date"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Emirates ID</th>
+                                    <td>
+                                        <field name="eid_doc_no"/>
+                                    </td>
+                                    <td>
+                                        <field name="eid_issue_date"/>
+                                    </td>
+                                    <td>
+                                        <field name="eid_expiry_date"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Health Card</th>
+                                    <td>
+                                        <field name="health_card_no"/>
+                                    </td>
+                                    <td>
+                                        <field name="health_card_issue_date"/>
+                                    </td>
+                                    <td>
+                                        <field name="health_card_expiry_date"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>DM Card</th>
+                                    <td>
+                                        <field name="dm_card_no"/>
+                                    </td>
+                                    <td>
+                                        <field name="dm_card_issue_date"/>
+                                    </td>
+                                    <td>
+                                        <field name="dm_card_expiry_date"/>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</openerp>
