@@ -6,9 +6,8 @@
         <field name="name">service.contract.tree</field>
         <field name="model">service.contract</field>
         <field name="arch" type="xml">
-            <tree decoration-success="state == 'valid'" decoration-danger="state == 'expired'"
-                  decoration-info="state == 'draft'" decoration-bf="state == 'valid'" default_order="name desc"
-                  sample="1">
+            <tree sample="1" decoration-success="state == 'valid'" decoration-danger="state == 'expired'"
+                  decoration-info="state == 'draft'" decoration-bf="state == 'valid'" default_order="name desc">
                 <field name="name" string="Reference" decoration-bf="1"/>
                 <field name="select_service"/>
                 <field name="partner_id" widget="many2one_avatar"/>
@@ -59,12 +58,12 @@
                 <filter name="state" string="Not-Renewed" domain="[('state','=','not_renewed')]"/>
                 <filter name="state" string="Cancelled" domain="[('state','=','cancelled')]"/>
                 <separator/>
-<!--                <filter icon="terp-go-month" string="Expired Last Month"-->
-<!--                        domain="[('state','=','expired'), ('date_end', '&gt;=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01')),                 ('date_end', '&lt;', (context_today()).strftime('%Y-%m-01'))]"-->
-<!--                        help="last month"/>-->
-<!--                <filter string="Expiring This Month" name="current_month"-->
-<!--                        domain="[('state','=', 'expiring'),('date_end','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('date_end','&gt;=',time.strftime('%Y-%m-01'))]"/>-->
-<!--                <separator/>-->
+                <!--                <filter icon="terp-go-month" string="Expired Last Month"-->
+                <!--                        domain="[('state','=','expired'), ('date_end', '&gt;=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01')),                 ('date_end', '&lt;', (context_today()).strftime('%Y-%m-01'))]"-->
+                <!--                        help="last month"/>-->
+                <!--                <filter string="Expiring This Month" name="current_month"-->
+                <!--                        domain="[('state','=', 'expiring'),('date_end','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('date_end','&gt;=',time.strftime('%Y-%m-01'))]"/>-->
+                <!--                <separator/>-->
                 <filter string="January" name="jan"
                         domain="[('start_month','=',1)]"
                         help="January"/>
@@ -102,12 +101,12 @@
                         domain="[('start_month','=',12)]"
                         help="December"/>
                 <separator/>
-<!--                <filter string="Current Year" name="current_year"-->
-<!--                        domain="[('date_start','&gt;=',time.strftime('%Y-01-01')), ('date','&lt;=',time.strftime('%Y-12-31'))]"-->
-<!--                        help="This year"/>-->
-<!--                <filter string="Last Year" name="last_year"-->
-<!--                        domain="[('date_start','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('date_start','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"-->
-<!--                        help="Last year"/>-->
+                <!--                <filter string="Current Year" name="current_year"-->
+                <!--                        domain="[('date_start','&gt;=',time.strftime('%Y-01-01')), ('date','&lt;=',time.strftime('%Y-12-31'))]"-->
+                <!--                        help="This year"/>-->
+                <!--                <filter string="Last Year" name="last_year"-->
+                <!--                        domain="[('date_start','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('date_start','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"-->
+                <!--                        help="Last year"/>-->
             </search>
         </field>
     </record>
@@ -190,11 +189,13 @@
                         <group>
                             <field name="next_job_date" invisible="1"/>
                         </group>
-                        <field name="covered_area"/>
-
-                        <field name="remarks"/>
-                        <field name="ref"/>
-
+                    </group>
+                    <br/>
+                    <br/>
+                    <group>
+                        <field name="covered_area" placeholder="Covered Areas"/>
+                        <field name="remarks" placeholder="Remarks..."/>
+                        <field name="ref" placeholder="Internal References..."/>
                     </group>
                     <notebook>
                         <page string="Scope of Works">

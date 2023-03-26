@@ -2,18 +2,27 @@
 <odoo>
     <data>
 
-        <record id="view_calendar_scheduling_calendar" model="ir.ui.view">
-            <field name="name">calendar.event.calendar</field>
+        <record id="view_calendar_scheduling_calendar_job" model="ir.ui.view">
+            <field name="name">calendar.event.job.inherit</field>
             <field name="model">calendar.event</field>
+            <field name="priority" eval="2"/>
             <field name="arch" type="xml">
-                <calendar string="Scheduling" color="service_team" avatar_model="service.team" date_start="start"
-                          date_stop="stop" quick_create="False">
+                <calendar js_class="attendee_calendar" string="Scheduling" date_start="start" date_stop="stop"
+                          date_delay="duration" mode="week" quick_add="False" color="service_team">
                     <field name="service_team"/>
                     <field name="partner_id" attrs="{'invisible':[('partner_id','=',False)]}"/>
                     <field name="area_id" attrs="{'invisible':[('area_id','=',False)]}"/>
                     <field name="state"/>
                     <field name="block" invisible="1"/>
                     <field name="block_label" attrs="{'invisible':[('block','=',False)]}"/>
+                    <field name="attendee_status" invisible="1"/>
+                    <field name="partner_ids" options="{'block': True, 'icon': 'fa fa-users'}"
+                           filters="1" widget="many2manyattendee" write_model="calendar.filters"
+                           write_field="partner_id" filter_field="partner_checked" avatar_field="avatar_128"
+                    />
+                    <field name="videocall_location" widget="url" text="Join Video Call"
+                           options="{'icon': 'fa fa-lg fa-video-camera'}"
+                           attrs="{'invisible': [('videocall_location', '=', False)]}"/>
                 </calendar>
             </field>
         </record>
@@ -48,20 +57,18 @@
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
-                            <button name="button_send_sms" type="object" class="oe_stat_button" icon="fa-archive"
+                            <button name="send_smsnow" type="object" class="oe_stat_button" icon="fa-archive"
                                     attrs="{'invisible':[('state','!=','scheduled')]}">
                                 <span>Send SMS Reminder</span>
                             </button>
                         </div>
                         <div class="oe_title">
-                            <h2>
+                            <h1>
                                 <field name="job_id" readonly="1"/>
-                            </h2>
+                            </h1>
                             <label for="block" attrs="{'invisible':[('state','!=','scheduled')]}"/>
                             <field name="block" attrs="{'invisible':[('state','!=','scheduled')]}"/>
                             <field name="block_label" attrs="{'invisible':[('state','!=','scheduled')]}"/>
-                            <br/>
-                            <br/>
                             <label for="service_team"/>
                             <field name="service_team" attrs="{'readonly':[('state','=','unconfirmed')]}"/>
                         </div>
@@ -127,6 +134,10 @@
                             <field name="remarks" placeholder="will appear for the assigned team"/>
                             <field name="internal_note" placeholder="Will not appear for teams (office use only)"/>
                         </group>
+                        <br/>
+                        <button name="create_invoice" type="object" class="oe_highlight"
+                                string="Create Invoice"
+                                attrs="{'invisible':[('invoice_id','!=',False)]}"/>
                         <notebook>
                             <page name="receive_team" string="Receive From Team"
                                   attrs="{'invisible':[('block','=',True)]}">
@@ -147,9 +158,6 @@
                                         <button name="get_inv_amount" type="object" class="oe_link"
                                                 string="Check Balance"
                                                 attrs="{'invisible':[('invoice_id','=',False)]}"/>
-                                        <button name="button_create_invoice" type="object" class="oe_highlight"
-                                                string="Create Invoice"
-                                                attrs="{'invisible':[('invoice_id','!=',False)]}"/>
                                     </group>
                                     <group>
                                         <field name="jcn_not_required"/>
@@ -157,6 +165,8 @@
                                 </group>
                             </page>
                         </notebook>
+                        <br/>
+                        <br/>
                         <group>
                             <group>
                                 <field name="create_uid" readonly="1" string="Job Created By"/>
@@ -209,7 +219,7 @@
         </record>
 
         <record id="cal_scheduling_view_search" model="ir.ui.view">
-            <field name="name">calendar.event.search</field>
+            <field name="name">calendar.event.search.job</field>
             <field name="model">calendar.event</field>
             <field name="arch" type="xml">
                 <search string="Search Meetings">
@@ -226,7 +236,7 @@
                     <field name="invoice_id"/>
                     <field name="paid_amount"/>
                     <field name="balance"/>
-                    <field name="name" string="Meeting" filter_domain="[('name','ilike',self)]"/>
+                    <field name="name" string="Meeting" filter_domain="[('name', 'ilike', self)]"/>
                     <field name="privacy" string="Privacy"/>
                     <filter name="state" string="Un-Confirmed" domain="[('state','=','unconfirmed')]"/>
                     <filter name="state" string="Scheduled" domain="[('state','=','scheduled')]"/>
@@ -234,36 +244,29 @@
                     <filter name="state" string="Received" domain="[('state','=','received')]"/>
                     <filter name="state" string="Cancelled" domain="[('state','=','cancelled')]"/>
                     <separator/>
-                    <filter name="call_back" string="Callback Jobs" domain="[('call_back','=','TRUE')]"/>
-                    <filter name="Amount" string="Amount > 0" domain="[('amount','>','0')]"/>
-                    <separator/>
-                    <filter name="service_team" string="Team A" domain="[('service_team','=','Team A')]"/>
-                    <filter name="service_team" string="Team B" domain="[('service_team','=','Team B')]"/>
-                    <filter name="service_team" string="Team C" domain="[('service_team','=','Team C')]"/>
-                    <filter name="service_team" string="Team D" domain="[('service_team','=','Team D')]"/>
-                    <filter name="service_team" string="Team E" domain="[('service_team','=','Team E')]"/>
-                    <filter name="service_team" string="Team O" domain="[('service_team','=','Team O')]"/>
+                    <filter name="call_back" string="Callback Jobs" domain="[('call_back', '=', True)]"/>
+                    <filter name="Amount" string="Amount > 0" domain="[('amount','&gt;','0')]"/>
                     <separator/>
                     <separator/>
                     <filter string="Yesterday" name="Yesterday" separator="1"
-                            domain="[('start','&gt;=', ((context_today()+datetime.timedelta(days=-1)).strftime('%Y-%m-%d'))), ('date','&lt;=', ((context_today()+datetime.timedelta(days=-1)).strftime('%Y-%m-%d')))]"
+                            domain="[('start','&gt;=', ((context_today()+datetime.timedelta(days=-1)).strftime('%Y-%m-%d'))), ('start','&lt;=', ((context_today()+datetime.timedelta(days=-1)).strftime('%Y-%m-%d')))]"
                             help="Yesterday"/>
                     <filter string="Today" name="Today" separator="1"
-                            domain="[('start','&gt;=', ((context_today()+datetime.timedelta(days=0)).strftime('%Y-%m-%d'))), ('date','&lt;=', ((context_today()+datetime.timedelta(days=0)).strftime('%Y-%m-%d')))]"
+                            domain="[('start','&gt;=', ((context_today()+datetime.timedelta(days=0)).strftime('%Y-%m-%d'))), ('start','&lt;=', ((context_today()+datetime.timedelta(days=0)).strftime('%Y-%m-%d')))]"
                             help="Today"/>
                     <filter string="Tomorrow" name="Tomorrow" separator="1"
-                            domain="[('start','&gt;=', ((context_today()+datetime.timedelta(days=0)).strftime('%Y-%m-%d'))), ('date','&lt;=', ((context_today()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')))]"
+                            domain="[('start','&gt;=', ((context_today()+datetime.timedelta(days=0)).strftime('%Y-%m-%d'))), ('start','&lt;=', ((context_today()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')))]"
                             help="Tomorrow"/>
                     <separator/>
                     <filter string="Current Month" name="current_month"
-                            domain="[('start','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('date','&gt;=',time.strftime('%Y-%m-01'))]"/>
+                            domain="[('start','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('start','&gt;=',time.strftime('%Y-%m-01'))]"/>
                     <filter string="Last Month" name="last_month"
-                            domain="[('start', '&gt;=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01')),                 ('date', '&lt;', (context_today()).strftime('%Y-%m-01'))]"
+                            domain="[('start', '&gt;=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01')),                 ('start', '&lt;', (context_today()).strftime('%Y-%m-01'))]"
                             help="Records from the previous month"/>
                     <filter string="January" name="jan"
                             domain="[('start_month','=',1)]"
                             help="January"/>
-                    <filter string="Feburary" name="feb"
+                    <filter string="February" name="feb"
                             domain="[('start_month','=',2)]"
                             help="Feb"/>
                     <filter string="March" name="mar"
@@ -296,7 +299,7 @@
                     <filter string="December" name="dec"
                             domain="[('start_month','=',12)]"
                             help="December"/>
-                    <sparator/>
+                    <separator/>
                     <filter string="Current Year" name="current_year"
                             domain="[('start','&gt;=',time.strftime('%Y-01-01')), ('start','&lt;=',time.strftime('%Y-12-31'))]"
                             help="This year"/>
@@ -305,137 +308,58 @@
                             help="Last year"/>
                     <separator/>
                     <group expand="0" string="Group By">
-                        <filter string="Team" domain="[]" context="{'group_by':'service_team'}"/>
-                        <filter string="Customer" domain="[]" context="{'group_by':'partner_id'}"/>
-                        <filter string="Area" domain="[]" context="{'group_by':'area_id'}"/>
-                        <filter string="Callback Team" domain="[]" context="{'group_by':'call_back_team_id'}"/>
+                        <filter string="Team" name="team" context="{'group_by': 'service_team'}"/>
+                        <filter string="Customer" name="customer" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Area" name="area" context="{'group_by': 'area_id'}"/>
+                        <filter string="Callback Team" name="callback_team"
+                                context="{'group_by': 'call_back_team_id'}"/>
                     </group>
                 </search>
             </field>
         </record>
 
-<!--        <record id="job_cal_scheduling_act" model="ir.actions.act_window">-->
-<!--            <field name="name">Jobs</field>-->
-<!--            <field name="res_model">calendar.event</field>-->
-<!--            <field name="view_mode">tree,form,calendar</field>-->
-<!--            <field name="search_view_id" ref="cal_scheduling_view_search"/>-->
-<!--            <field name="help" type="html">-->
-<!--                <p class="oe_view_nocontent_create">-->
-<!--                    Click here to Schedule a new Job.-->
-<!--                </p>-->
-<!--                <p>-->
-<!--                    Use job to a service team.-->
-<!--                </p>-->
-<!--            </field>-->
-<!--        </record>-->
-
-
-        <record id="job_calendar_search_inherit_custom" model="ir.ui.view">
-            <field name="name">Jobs Search</field>
-            <field name="model">calendar.event</field>
-            <field name="inherit_id" ref="calendar.view_calendar_event_search"/>
-            <field name="arch" type="xml">
-                <xpath expr="//filter[last()]" position="after">
-                    <filter string="January" name="jan"
-                            domain="[('start_month','=',1)]"
-                            help="January"/>
-                    <filter string="Feburary" name="feb"
-                            domain="[('start_month','=',2)]"
-                            help="Feb"/>
-                    <filter string="March" name="mar"
-                            domain="[('start_month','=',3)]"
-                            help="Mar"/>
-                    <filter string="April" name="apr"
-                            domain="[('start_month','=',4)]"
-                            help="april"/>
-                    <filter string="May" name="may"
-                            domain="[('start_month','=',5)]"
-                            help="May"/>
-                    <filter string="June" name="june"
-                            domain="[('start_month','=',6)]"
-                            help="June"/>
-                    <filter string="July" name="jul"
-                            domain="[('start_month','=',7)]"
-                            help="July"/>
-                    <filter string="August" name="aug"
-                            domain="[('start_month','=',8)]"
-                            help="August"/>
-                    <filter string="September" name="sept"
-                            domain="[('start_month','=',9)]"
-                            help="September"/>
-                    <filter string="October" name=""
-                            domain="[('start_month','=',10)]"
-                            help="October"/>
-                    <filter string="November" name="nov"
-                            domain="[('start_month','=',11)]"
-                            help="November"/>
-                    <filter string="December" name="dec"
-                            domain="[('start_month','=',12)]"
-                            help="December"/>
-                    <sparator/>
-                    <filter string="Current Year" name="current_year"
-                            domain="[('start','&gt;=',time.strftime('%Y-01-01')), ('start','&lt;=',time.strftime('%Y-12-31'))]"
-                            help="This year"/>
-                    <filter string="Last Year" name="last_year"
-                            domain="[('start','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('start','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"
-                            help="Last year"/>
-                </xpath>
+        <record id="job_cal_scheduling_act" model="ir.actions.act_window">
+            <field name="name">Jobs</field>
+            <field name="res_model">calendar.event</field>
+            <field name="view_mode">calendar,tree,form</field>
+            <field name="search_view_id" ref="cal_scheduling_view_search"/>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'calendar', 'view_id': ref('view_calendar_scheduling_calendar_job')}),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('cal_scheduling_view_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_cal_scheduling_form')})]"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click here to Schedule a new Job.
+                </p>
+                <p>
+                    Use job to a service team.
+                </p>
             </field>
         </record>
 
-<!--        <record id="action_job_event_calendar" model="ir.actions.act_window">-->
-<!--            <field name="res_model">job.event.part</field>/>-->
-<!--            <field name="view_mode">calendar</field>-->
-<!--            <field name="view_ids" eval="[(5, 0, 0),-->
-<!--            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_calendar_scheduling_calendar')})-->
-<!--            ]"/>-->
-<!--        </record>-->
+        <record id="job_cal_scheduling_act_report" model="ir.actions.act_window">
+            <field name="name">Jobs Report</field>
+            <field name="res_model">calendar.event</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="cal_scheduling_view_search"/>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('cal_scheduling_view_tree')})
+            ]"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click here to Schedule a new Job.
+                </p>
+                <p>
+                    Use job to a service team.
+                </p>
+            </field>
+        </record>
 
-<!--        <record id="action_view_job_cal_event_tree" model="ir.actions.act_window">-->
-<!--            <field name="res_model">calendar.event</field>-->
-<!--            <field name="view_mode">tree</field>-->
-<!--            <field name="view_ids" eval="[(5, 0, 0),-->
-<!--            (0, 0, {'view_mode': 'tree', 'view_id': ref('cal_scheduling_view_tree')})-->
-<!--            ]"/>-->
-<!--        </record>-->
-
-<!--        <record id="action_view_job_cal_event_form" model="ir.actions.act_window">-->
-<!--            <field name="res_model">calendar.event</field>-->
-<!--            <field name="view_mode">form</field>-->
-<!--            <field name="view_ids" eval="[(5, 0, 0),-->
-<!--            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_cal_scheduling_form')})-->
-<!--            ]"/>-->
-<!--        </record>-->
-
-
-<!--        <record id="job_cal_scheduling_act_report" model="ir.actions.act_window">-->
-<!--            <field name="name">Jobs Report</field>-->
-<!--            <field name="res_model">calendar.event</field>-->
-<!--            <field name="view_mode">tree,form</field>-->
-<!--            <field name="search_view_id" ref="cal_scheduling_view_search"/>-->
-<!--            <field name="help" type="html">-->
-<!--                <p class="oe_view_nocontent_create">-->
-<!--                    Click here to Schedule a new Job.-->
-<!--                </p>-->
-<!--                <p>-->
-<!--                    Use job to a service team.-->
-<!--                </p>-->
-<!--            </field>-->
-<!--        </record>-->
-
-<!--        <record id="action_view_job_cal_event_report_tree" model="ir.actions.act_window">-->
-<!--            <field name="res_model">calendar.event</field>-->
-<!--            <field name="view_mode">tree</field>-->
-<!--            <field name="view_ids" eval="[(5, 0, 0),-->
-<!--            (0, 0, {'view_mode': 'tree', 'view_id': ref('cal_scheduling_view_tree')})-->
-<!--            ]"/>-->
-<!--        </record>-->
-
-<!--        <menuitem-->
-<!--                id="mail_menu_job_calendar"-->
-<!--                name="Jobs"-->
-<!--                sequence="3"-->
-<!--                action="job_cal_scheduling_act"/>-->
+        <menuitem
+                id="mail_menu_job_calendar"
+                name="Jobs"
+                sequence="3"
+                action="job_cal_scheduling_act"/>
 
     </data>
 </odoo>

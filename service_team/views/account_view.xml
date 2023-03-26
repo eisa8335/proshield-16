@@ -141,7 +141,7 @@
                     <filter string="December" name="dec"
                             domain="[('start_month','=',12)]"
                             help="December"/>
-                    <sparator/>
+                    <separator/>
                     <filter string="Current Year" name="current_year"
                             domain="[('date','&gt;=',time.strftime('%Y-01-01')), ('date','&lt;=',time.strftime('%Y-12-31'))]"
                             help="Current Year"/>
@@ -186,7 +186,7 @@
                     <filter string="September" name="sept"
                             domain="[('start_month','=',9)]"
                             help="September"/>
-                    <filter string="October" name=""
+                    <filter string="October" name="oct"
                             domain="[('start_month','=',10)]"
                             help="October"/>
                     <filter string="November" name="nov"
@@ -195,12 +195,12 @@
                     <filter string="December" name="dec"
                             domain="[('start_month','=',12)]"
                             help="December"/>
-                    <sparator/>
+                    <separator/>
                     <filter string="Current Year" name="current_year"
-                            domain="[('start','&gt;=',time.strftime('%Y-01-01')), ('start','&lt;=',time.strftime('%Y-12-31'))]"
+                            domain="[('date','&gt;=',time.strftime('%Y-01-01')), ('date','&lt;=',time.strftime('%Y-12-31'))]"
                             help="Current Year"/>
                     <filter string="Last Year" name="last_year"
-                            domain="[('start','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('start','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"
+                            domain="[('date','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('date','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"
                             help="Last Year"/>
                 </xpath>
             </field>

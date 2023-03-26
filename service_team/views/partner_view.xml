@@ -54,7 +54,7 @@
             </field>
         </record>
 
-        <record id="proshiel_view_res_partner_filter" model="ir.ui.view">
+        <record id="proshield_view_res_partner_filter" model="ir.ui.view">
             <field name="name">res.partner.select</field>
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_res_partner_filter"/>
@@ -66,7 +66,6 @@
                 </search>
             </field>
         </record>
-
 
     </data>
 </odoo>
