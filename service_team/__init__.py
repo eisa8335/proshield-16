@@ -4,4 +4,3 @@ from . import contract
 from . import models
 from . import quotation
 from . import hr
-from . import mail

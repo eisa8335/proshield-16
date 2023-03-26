@@ -75,7 +75,7 @@
                         <group>
                             <group attrs="{'invisible':[('block','=',True)]}">
                                 <field name="partner_id" attrs="{'required':[('block','=',False)]}"
-                                       widget="many2one_avatar"/>
+                                       widget="many2one_avatar" readonly="0"/>
                                 <field name="contact_id" domain="[('parent_id', '=', partner_id)]"
                                        widget="many2one_avatar"/>
                                 <field name="contact_mobile" attrs="{'invisible':[('contact_mobile','=',False)]}"
