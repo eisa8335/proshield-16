@@ -87,8 +87,6 @@ class Contract(models.Model):
     def get_number_of_days(self):
         date_start = self.date_start
         date_end = self.date_end
-        date_start = datetime.strptime(date_start, '%Y-%m-%d')
-        date_end = datetime.strptime(date_end, '%Y-%m-%d')
         delta = date_end - date_start
         return delta.days + 1
 
@@ -98,7 +96,6 @@ class Contract(models.Model):
         job_pool = self.env['calendar.event']
         job_type = self.env['job.type'].search([('name', '=', 'Contract')], limit=1)
         start_time = self.job_start_time
-        start_time = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
         frequency_id = self.frequency_id
         freq = frequency_id.numbers
         total_days = self.get_number_of_days()
@@ -181,7 +178,7 @@ class Contract(models.Model):
             invoice_line_val['invoice_line_tax_ids'] = [[6, False, tax_ids]]
             vals['invoice_line_ids'] = [(0, 0, invoice_line_val)]
             invoice = invoice_pool.create(vals)
-            date = datetime.strptime(date, '%Y-%m-%d')
+            date = datetime.strptime(str(date), '%Y-%m-%d')
             date = date + relativedelta(months=date_freq)
             date = str(date)
             date = date[:10]
@@ -190,9 +187,8 @@ class Contract(models.Model):
     def onchange_date_star(self):
         date_start = self.date_start
         if date_start:
-            date_start = datetime.strptime(str(date_start), '%Y-%m-%d')
             date_end = date_start + relativedelta(years=1, days=-1)
-            self.date_end = str(date_end)
+            self.date_end = date_end
 
     def button_open_invoices(self):
         ctx = {
@@ -254,9 +250,7 @@ class Contract(models.Model):
 
     def check_expiry(self):
         today = fields.Date.today()
-        today = datetime.strptime(today, '%Y-%m-%d')
         end_date = self.date_end
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
         delta = end_date - today
         days_remaining = delta.days
 
@@ -284,7 +278,7 @@ class Contract(models.Model):
         for each in order_ids:
             if each.next_execution_date:
                 next_execution_date = each.next_execution_date
-                date_after_fifteen_days = datetime.strptime(next_execution_date, "%Y-%m-%d") + relativedelta(days=15)
+                date_after_fifteen_days = next_execution_date + relativedelta(days=15)
                 date_after_15_days = date_after_fifteen_days.date()
                 if today == date_after_15_days:
                     if each.employee_id.id not in emp_lst:
@@ -296,7 +290,7 @@ class Contract(models.Model):
             for order_id in order_ids.filtered(lambda l: l.employee_id.id == each):
                 if order_id.next_execution_date:
                     next_execution_date = order_id.next_execution_date
-                    date_after_fifteen_days = datetime.strptime(next_execution_date, "%Y-%m-%d") + relativedelta(
+                    date_after_fifteen_days = next_execution_date + relativedelta(
                         days=15)
                     date_after_15_days = date_after_fifteen_days.date()
                     if today == date_after_15_days:
@@ -320,9 +314,7 @@ class Contract(models.Model):
 
     def get_expiry(self):
         today = fields.Date.today()
-        today = datetime.strptime(today, '%Y-%m-%d')
         end_date = self.date_end
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
         delta = end_date - today
         days_remaining = delta.days
         state = self.state
@@ -358,7 +350,7 @@ class Contract(models.Model):
     @api.onchange('date_end')
     def onchange_date_end(self):
         if self.date_end:
-            end_date = datetime.strptime(str(self.date_end), "%Y-%m-%d") - relativedelta(days=30)
+            end_date = self.date_end - relativedelta(days=30)
             self.next_execution_date = end_date.date()
 
     def _get_paid_amount(self):
@@ -370,14 +362,14 @@ class Contract(models.Model):
     @api.depends('date_start')
     def _get_start_month(self):
         if self.date_start:
-            self.start_month = int(datetime.strptime(str(self.date_start), '%Y-%m-%d').month)
+            self.start_month = int(self.date_start.month)
 
     @api.model
     def process_month(self):
         accounts = self.env['service.contract'].search([])
         for i in accounts:
             if i.date:
-                month = int(datetime.strptime(i.date_start, '%Y-%m-%d').month)
+                month = int(i.date_start.month)
                 sql = """UPDATE service_contract SET start_month = %s WHERE id = %s""" % (month, i.id)
                 self.env.cr.execute(sql)
 

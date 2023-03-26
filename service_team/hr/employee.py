@@ -38,16 +38,16 @@ class EmployeeInherit(models.Model):
         for each in employee_ids:
             employee_details = {}
             if each.passport_expiry_date and (
-                    datetime.strptime(each.passport_expiry_date, "%Y-%m-%d") - relativedelta(days=13)).date() == today:
+                    each.passport_expiry_date - relativedelta(days=13)).date() == today:
                 employee_details['passport_expiry_date'] = each.passport_expiry_date
             if each.visa_expiry_date and (
-                    datetime.strptime(each.visa_expiry_date, "%Y-%m-%d") - relativedelta(days=13)).date() == today:
+                    each.visa_expiry_date - relativedelta(days=13)).date() == today:
                 employee_details['visa_expiry_date'] = each.visa_expiry_date
             if each.dm_card_expiry_date and (
-                    datetime.strptime(each.dm_card_expiry_date, "%Y-%m-%d") - relativedelta(days=13)).date() == today:
+                    each.dm_card_expiry_date - relativedelta(days=13)).date() == today:
                 employee_details['dm_card_expiry_date'] = each.dm_card_expiry_date
             if each.eid_expiry_date and (
-                    datetime.strptime(each.eid_expiry_date, "%Y-%m-%d") - relativedelta(days=13)).date() == today:
+                    each.eid_expiry_date - relativedelta(days=13)).date() == today:
                 employee_details['eid_expiry_date'] = each.eid_expiry_date
             if employee_details:
                 employee_details['serial'] = count

@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <!--         Quotation  -->
-                <menuitem id="sub_menu_quotation" parent="main_menu_service_team" name="Quotations" sequence="4"/>
+        <menuitem id="sub_menu_quotation" parent="main_menu_service_team" name="Quotations" sequence="4"/>
         <menuitem id="menu_service_quotation" parent="sub_menu_quotation" action="action_service_quotation"
                   sequence="1" name="Quotations Report"/>
 

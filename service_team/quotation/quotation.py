@@ -134,7 +134,7 @@ class ServiceQuotation(models.Model):
         for each in order_ids:
             if each.next_execution_date:
                 next_execution_date = each.next_execution_date
-                date_after_seven_days = datetime.strptime(str(next_execution_date), "%Y-%m-%d") + relativedelta(days=7)
+                date_after_seven_days = next_execution_date + relativedelta(days=7)
                 date_after_7_days = date_after_seven_days.date()
                 # if True:
                 if today == date_after_7_days:
@@ -147,7 +147,7 @@ class ServiceQuotation(models.Model):
             for order_id in order_ids.filtered(lambda l: l.employee_id.id == each):
                 next_execution_date = order_id.next_execution_date
                 if next_execution_date:
-                    date_after_seven_days = datetime.strptime(next_execution_date, "%Y-%m-%d") + relativedelta(days=7)
+                    date_after_seven_days = next_execution_date + relativedelta(days=7)
                     date_after_7_days = date_after_seven_days.date()
 
                     if today == date_after_7_days:
@@ -168,9 +168,7 @@ class ServiceQuotation(models.Model):
 
     def get_expiry(self):
         today = fields.Date.today()
-        today = datetime.strptime(today, '%Y-%m-%d')
         end_date = self.date
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
         validity = self.validity_id
         validity_days = validity.numbers
         if not validity_days:
@@ -188,13 +186,13 @@ class ServiceQuotation(models.Model):
     @api.depends('date')
     def _get_start_month(self):
         if self.date:
-            self.start_month = int(datetime.strptime(str(self.date), '%Y-%m-%d').month)
+            self.start_month = int(self.date.month)
 
     def process_month(self):
         accounts = self.env['account.move'].search([])
         for i in accounts:
             if i.date:
-                month = int(datetime.strptime(i.date, '%Y-%m-%d').month)
+                month = int(i.date.month)
                 sql = """UPDATE service_quotation SET start_month = %s WHERE id = %s""" % (month, i.id)
                 self.env.cr.execute(sql)
 

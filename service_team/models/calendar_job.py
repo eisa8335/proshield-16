@@ -148,7 +148,6 @@ class Event(models.Model):
         for rec in self:
             completd_on = rec.completed_on
             if completd_on:
-                completd_on = datetime.strptime(completd_on, '%Y-%m-%d')
                 warranty = int(rec.warranty)
                 if warranty:
                     today = datetime.now()
@@ -161,7 +160,6 @@ class Event(models.Model):
     def _get_stop_time(self):
         start = self.start
         if start:
-            start = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
             job_duration = self.job_duration or 2.0
             stop = start + relativedelta(hours=job_duration)
             self.stop = str(stop)
@@ -190,7 +188,7 @@ class Event(models.Model):
         jobs = self.env['calendar.event'].search([])
         for i in jobs:
             if i.start:
-                month = int(datetime.strptime(i.start, '%Y-%m-%d %H:%M:%S').month)
+                month = int(i.start.month)
                 sql = """UPDATE calendar_event SET start_month = %s WHERE id = %s""" % (month, i.id)
                 self.env.cr.execute(sql)
 
@@ -274,25 +272,23 @@ class Event(models.Model):
         for each in job_ids:
             if each.partner_id.company_type == 'person':
                 next_execution_date = each.start
-                date_after_seven_days = datetime.strptime(next_execution_date, "%Y-%m-%d %H:%M:%S") + relativedelta(
+                date_after_seven_days = next_execution_date + relativedelta(
                     months=6, days=7)
                 date_after_7_days = date_after_seven_days.date()
                 if today == date_after_7_days:
                     sms_pool = self.env['sms.sms']
                     default_str = "It's time to protect again from the unwanted pests. 'Pest Free & Stress Free' For Bookings please call 043888235. Thank you <br/> Pro Shield Pest Control Services"
-                    mob_no = each.partner_id and each.partner_id.mobile or ''
+                    mob_no = each.partner_id.mobile
                     if not mob_no:
                         raise ValidationError("NO Mobile Number")
                     #         mob_no = '+971508887556'
 
                     vals = {
-                        'group_type': 'individual',
-                        'sms_gateway_config_id': 1,
-                        'to': mob_no,
-                        'msg': default_str
+                        'number': mob_no,
+                        'body': default_str
                     }
                     sms = sms_pool.create(vals)
-                    sms.send_now()
+                    sms.send()
 
     def send_smsnow(self, mssg='is confirmed'):
         signature = self.env['res.users'].sudo().browse(self._uid).signature
@@ -300,7 +296,7 @@ class Event(models.Model):
         format_time = "%H:%M:%S"
         sms_pool = self.env['sms.sms']
         #         config_id = self.env['sms.mail.server'].browse(1)
-        sam = datetime.strptime(self.start, DEFAULT_SERVER_DATETIME_FORMAT)
+        sam = datetime.strptime(str(self.start), DEFAULT_SERVER_DATETIME_FORMAT)
         sam = sam + timedelta(hours=4)
         now = datetime.now()
         if now > sam:
@@ -309,19 +305,17 @@ class Event(models.Model):
         formated_time = sam.strftime(format_time)
         default_str = 'Dear %s <br/> Your appointment %s on %s at %s. For any queries call 043888235. <br/> Thank you <br/> Pro Shield Pest Control Services L.L.C' % (
             self.partner_id.name, mssg, formated_date, formated_time)
-        mob_no = self.partner_id and self.partner_id.mobile or ''
-        if not mob_no:
-            raise ValidationError("NO Mobile Number")
-        #         mob_no = '+971508887556'
+        mob_no = self.partner_id.mobile
+        # if not mob_no:
+        #     raise ValidationError("NO Mobile Number")
+        # #         mob_no = '+971508887556'
 
         vals = {
-            'group_type': 'individual',
-            'sms_gateway_config_id': 1,
-            'to': mob_no,
-            'msg': default_str
+            'number': mob_no,
+            'body': default_str
         }
         sms = sms_pool.create(vals)
-        sms.send_now()
+        sms.send()
 
     def reinstate(self):
         self.write({'state': 'Scheduled'})
@@ -351,19 +345,17 @@ class Event(models.Model):
             sms_pool = self.env['sms.sms']
             default_str = 'Dear %s <br/> Your payment of %s AED is received & registered in our system. Thank you for choosing Pro Shield Pest Control Services. For any query plz call <br/> 043888235' % (
                 self.partner_id.name, self.paid_amount)
-            mob_no = self.partner_id and self.partner_id.mobile or ''
+            mob_no = self.partner_id.mobile
             if not mob_no:
                 raise ValidationError("NO Mobile Number")
             #         mob_no = '+971508887556'
 
             vals = {
-                'group_type': 'individual',
-                'sms_gateway_config_id': 1,
-                'to': mob_no,
-                'msg': default_str
+                'number': mob_no,
+                'body': default_str
             }
             sms = sms_pool.create(vals)
-            sms.send_now()
+            sms.send()
         self.write({'state': 'received'})
 
     @api.onchange('area_id')
@@ -381,8 +373,6 @@ class Event(models.Model):
         if self.followup_visit and int(self.followup_days):
             start = self.start
             stop = self.stop
-            start = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
-            stop = datetime.strptime(stop, '%Y-%m-%d %H:%M:%S')
             followup_days = self.followup_days
             start = start + relativedelta(days=int(followup_days))
             stop = stop + relativedelta(days=int(followup_days))
@@ -419,13 +409,9 @@ class Event(models.Model):
         if self.recurring_job and self.job_recurring_days:
             start = self.start
             stop = self.stop
-
-            start = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
             if not stop:
                 job_duration = self.job_duration or 2.0
                 stop = start + relativedelta(hours=job_duration)
-            else:
-                stop = datetime.strptime(stop, '%Y-%m-%d %H:%M:%S')
             adding_days = 1
             recurring_days = int(self.job_recurring_days)
             parent_job_id = self.id

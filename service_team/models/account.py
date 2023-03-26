@@ -28,7 +28,7 @@ class AccountMoveInherit(models.Model):
         accounts = self.env['account.move'].search([])
         for i in accounts:
             if i.date_invoice:
-                month = int(datetime.strptime(i.date_invoice, '%Y-%m-%d').month)
+                month = int(i.date_invoice.month)
                 sql = """UPDATE account_move SET start_month = %s WHERE id = %s""" % (month, i.id)
                 self.env.cr.execute(sql)
 
@@ -41,18 +41,17 @@ class AccountMoveInherit(models.Model):
         n = 1
         for each in invoice_ids:
             date_due = each.date_due
-            date_due = datetime.strptime(date_due, "%Y-%m-%d")
             if date_due.date() < today:
                 if not each.next_execution_date:
                     next_execution_date = each.date_due
-                    date_after_seven_days = datetime.strptime(next_execution_date, "%Y-%m-%d") + relativedelta(days=7)
+                    date_after_seven_days = next_execution_date + relativedelta(days=7)
                     date_after_7_days = date_after_seven_days.date()
                     if today == date_after_7_days:
                         if each.user_id.id not in salepersons_lst:
                             salepersons_lst.append(each.user_id.id)
                 else:
                     next_execution_date = each.next_execution_date
-                    date_after_seven_days = datetime.strptime(next_execution_date, "%Y-%m-%d") + relativedelta(days=7)
+                    date_after_seven_days = next_execution_date + relativedelta(days=7)
                     date_after_7_days = date_after_seven_days.date()
                     if today == date_after_7_days:
                         if each.user_id.id not in salepersons_lst:
@@ -63,15 +62,15 @@ class AccountMoveInherit(models.Model):
             invoice_due_detail_list = []
             count = 1
             for invoice_id in invoice_ids.filtered(lambda l: l.user_id.id == each):
-                if datetime.strptime(invoice_id.date_due, "%Y-%m-%d").date() < today:
+                if invoice_id.date_due < today:
                     if not invoice_id.next_execution_date:
                         next_execution_date = invoice_id.date_due
-                        date_after_seven_days = datetime.strptime(next_execution_date, "%Y-%m-%d") + relativedelta(
+                        date_after_seven_days = next_execution_date + relativedelta(
                             days=7)
                         date_after_7_days = date_after_seven_days.date()
                     else:
                         next_execution_date = invoice_id.next_execution_date
-                        date_after_seven_days = datetime.strptime(next_execution_date, "%Y-%m-%d") + relativedelta(
+                        date_after_seven_days = next_execution_date + relativedelta(
                             days=7)
                         date_after_7_days = date_after_seven_days.date()
                     if today == date_after_7_days:
@@ -150,6 +149,6 @@ class AccountMoveLine(models.Model):
         accounts = self.env['account.move.line'].search([])
         for i in accounts:
             if i.date:
-                month = int(datetime.strptime(i.date, '%Y-%m-%d').month)
+                month = int(i.date.month)
                 sql = """UPDATE account_move_line SET start_month = %s WHERE id = %s""" % (month, i.id)
                 self.env.cr.execute(sql)
