@@ -32,7 +32,7 @@
         # 'contract/report/contract_print.xml',
         # 'report/job_print_template.xml',
         # 'report/job_print.xml',
-        # '3views/menu.xml',
+        'views/menu.xml',
         'hr/employee_view.xml',
     ],
     'installable': True,
