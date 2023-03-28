@@ -1,4 +1,4 @@
-<openerp>
+<odoo>
     <data>
         <record id="invoice_form_inherit" model="ir.ui.view">
             <field name="name">Account Invoice Form View Inherit</field>
@@ -206,4 +206,4 @@
             </field>
         </record>
     </data>
-</openerp>
+</odoo>

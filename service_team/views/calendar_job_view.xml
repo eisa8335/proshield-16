@@ -3,7 +3,7 @@
     <data>
 
         <record id="view_calendar_scheduling_calendar_job" model="ir.ui.view">
-            <field name="name">calendar.event.job.inherit</field>
+            <field name="name">calendar.event.job.calendar</field>
             <field name="model">calendar.event</field>
             <field name="priority" eval="2"/>
             <field name="arch" type="xml">
@@ -30,7 +30,7 @@
 
         <!-- Form View -->
         <record id="view_cal_scheduling_form" model="ir.ui.view">
-            <field name="name">calendar.event.form</field>
+            <field name="name">calendar.event.job.form</field>
             <field name="model">calendar.event</field>
             <field name="arch" type="xml">
                 <form string="Scheduling">
@@ -190,7 +190,7 @@
 
 
         <record id="cal_scheduling_view_tree" model="ir.ui.view">
-            <field name="name">calendar.event.tree</field>
+            <field name="name">calendar.event.job.tree</field>
             <field name="model">calendar.event</field>
             <field name="arch" type="xml">
                 <tree decoration-success="state in ('completed', 'received')" decoration-bf="state == 'received'"
@@ -219,7 +219,7 @@
         </record>
 
         <record id="cal_scheduling_view_search" model="ir.ui.view">
-            <field name="name">calendar.event.search.job</field>
+            <field name="name">calendar.event.job.search</field>
             <field name="model">calendar.event</field>
             <field name="arch" type="xml">
                 <search string="Search Meetings">
@@ -343,8 +343,8 @@
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="cal_scheduling_view_search"/>
             <field name="view_ids" eval="[(5, 0, 0),
-            (0, 0, {'view_mode': 'tree', 'view_id': ref('cal_scheduling_view_tree')})
-            ]"/>
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('cal_scheduling_view_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_cal_scheduling_form')})]"/>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">
                     Click here to Schedule a new Job.

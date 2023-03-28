@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
@@ -17,14 +18,14 @@ class ServiceQuotation(models.Model):
         return selection
 
     def _default_employee(self):
-        return self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
+        return self.env['hr.employee'].sudo().search([('user_id', '=', self.env.uid)], limit=1)
 
     select_service = fields.Selection([('qps', 'Pest Control Service'), ('qds', 'Disinfection Service')],
                                       string="Choose Service", default='qps')
     product_id = fields.Many2one('product.product', string="Service Type")
-    # job_area_id = fields.Many2one('job.area', string="Area Covered", required=False)
+    job_area_id = fields.Many2one('job.area', string="Area Covered", required=False)
     service_description = fields.Char(string="Service Description")
-    # job_type_id = fields.Many2one('job.type', string="Job Type")
+    job_type_id = fields.Many2one('job.type', string="Job Type")
     followup_visit = fields.Boolean(string="Follow Up Visit")
     followup_days = fields.Selection([(str(x), str(x) + ' Days') for x in range(1, 31)], string="Follow Up After")
     warranty = fields.Selection(get_warrant_selection, string="Warranty")
@@ -70,45 +71,36 @@ class ServiceQuotation(models.Model):
         self.get_expiry()
 
     def create_contract(self):
-        scope_of_works = []
-        covered_pests = []
-        contractors_obligations = []
-        client_obligations = []
-        for sc in self.scope_of_works:
-            scope_of_works.append(sc.id)
-        for cp in self.covered_pests:
-            covered_pests.append(cp.id)
-        for obl in self.contractors_obligations:
-            contractors_obligations.append(obl.id)
-        for cli in self.client_obligations:
-            client_obligations.append(cli.id)
+        scope_of_works = self.scope_of_works.ids
+        covered_pests = self.covered_pests.ids
+        contractors_obligations = self.contractors_obligations.ids
+        client_obligations = self.client_obligations.ids
 
         contract_payment = self.env['service.payment.term'].search([], limit=1)
         product = self.env['product.product'].search([('type', '=', 'service')], limit=1)
         vals = {
-            'partner_id': self.partner_id if self.partner_id.id else False,
-            'contact_id': self.contact_id if self.contact_id.id else False,
+            'partner_id': self.partner_id.id,
+            'contact_id': self.contact_id.id,
             'date': self.date,
-            'payment_term_id': self.payment_term_id if self.payment_term_id.id else False,
+            'payment_term_id': self.payment_term_id.id,
             'amount': self.amount,
-            'currency_id': self.currency_id if self.currency_id.id else False,
-            'frequency_id': self.frequency_id if self.frequency_id.id else False,
-            'callback_id': self.callback_id if self.callback_id.id else False,
-            'employee_id': self.employee_id if self.employee_id.id else False,
+            'currency_id': self.currency_id.id,
+            'frequency_id': self.frequency_id.id,
+            'callback_id': self.callback_id.id,
+            'employee_id': self.employee_id.id,
             'covered_area': self.covered_area,
             'product_id': product.id,
             'date_start': fields.Date.today(),
             'contract_payment': contract_payment.id,
             'date_end': fields.Date.today(),
-            'scope_of_works': [[6, 0, scope_of_works]],
-            'covered_pests': [[6, 0, covered_pests]],
-            'contractors_obligations': [[6, 0, contractors_obligations]],
-            'client_obligations': [[6, 0, client_obligations]],
+            'scope_of_works': [(6, 0, scope_of_works)],
+            'covered_pests': [(6, 0, covered_pests)],
+            'contractors_obligations': [(6, 0, contractors_obligations)],
+            'client_obligations': [(6, 0, client_obligations)],
         }
 
         contract_pool = self.env['service.contract']
         contract = contract_pool.create(vals)
-        contract_id = contract.id
 
         return {
             "name": "Contract",
@@ -116,7 +108,7 @@ class ServiceQuotation(models.Model):
             "view_type": 'form',
             "view_mode": 'form',
             'res_model': "service.contract",
-            "res_id": contract_id,
+            "res_id": contract.id,
             'target': 'new'
         }
 
@@ -127,74 +119,77 @@ class ServiceQuotation(models.Model):
 
     @api.model
     def _cron_check_followup(self):
-        order_ids = self.env['service.quotation'].search([('state', '=', 'valid')])
-        template_id = self.env.ref('service_quotation.service_quotation_followup_mail_inherit')
-        today = datetime.now().date()
-        emp_lst = []
-        for each in order_ids:
-            if each.next_execution_date:
-                next_execution_date = each.next_execution_date
-                date_after_seven_days = next_execution_date + relativedelta(days=7)
-                date_after_7_days = date_after_seven_days.date()
-                # if True:
-                if today == date_after_7_days:
-                    if each.employee_id.id not in emp_lst:
-                        emp_lst.append(each.employee_id.id)
+        # Get all valid service quotations
+        orders = self.env['service.quotation'].search([('state', '=', 'valid')])
 
-        for each in emp_lst:
-            service_quotation_detail_list = []
-            count = 1
-            for order_id in order_ids.filtered(lambda l: l.employee_id.id == each):
-                next_execution_date = order_id.next_execution_date
-                if next_execution_date:
-                    date_after_seven_days = next_execution_date + relativedelta(days=7)
-                    date_after_7_days = date_after_seven_days.date()
+        # Get the follow-up email template
+        template = self.env.ref('service_quotation.service_quotation_followup_mail_inherit')
 
-                    if today == date_after_7_days:
-                        service_quotation_details = {
-                            'serial': count,
-                            'name': order_id.name,
-                            'partner_id': order_id.partner_id.name, 'date': order_id.date,
-                            'amount': order_id.amount}
-                        count += 1
-                        service_quotation_detail_list.append(service_quotation_details)
-                        order_id.write({'next_execution_date': date_after_7_days})
-            if emp_lst:
-                emp_id = self.env['hr.employee'].browse(each)
-                if emp_id.work_email:
-                    template_id.email_to = emp_id.work_email
-                if template_id:
-                    template_id.with_context({'quotation_list': service_quotation_detail_list}).send_mail(order_id.id, force_send=True)
+        # Get today's date
+        today = fields.Date.today()
+
+        # Group service quotations by employee
+        orders_by_employee = {}
+        for order in orders:
+            employee_id = order.employee_id.id
+            if employee_id not in orders_by_employee:
+                orders_by_employee[employee_id] = []
+            orders_by_employee[employee_id].append(order)
+
+        # Send follow-up emails for each employee
+        for employee_id, orders in orders_by_employee.items():
+            # Get the employee's email address
+            employee = self.env['hr.employee'].browse(employee_id)
+            if not employee.work_email:
+                continue
+
+            # Get the service quotations due for follow-up
+            followup_orders = []
+            for order in orders:
+                if order.next_execution_date:
+                    followup_date = order.next_execution_date + relativedelta(days=7)
+                    if followup_date.date() == today:
+                        followup_orders.append(order)
+                        order.write({'next_execution_date': followup_date.date()})
+
+            # Create a dictionary of service quotation details
+            followup_details = {}
+            for i, order in enumerate(followup_orders):
+                followup_details[order.id] = {
+                    'serial': i + 1,
+                    'name': order.name,
+                    'partner': order.partner_id.name,
+                    'date': order.date,
+                    'amount': order.amount,
+                }
+
+            # Send the follow-up email
+            if followup_details:
+                template.with_context({'quotation_details': followup_details}).send_mail(followup_orders[0].id,force_send=True, email_values={'email_to': employee.work_email})
 
     def get_expiry(self):
         today = fields.Date.today()
         end_date = self.date
         validity = self.validity_id
         validity_days = validity.numbers
-        if not validity_days:
-            # raise Warning("NO Validity Days Set on This Validity Term!!!!!!!")
-            pass
-
+        # if not validity_days:
+        #     raise ValidationError("No Validity Days Set on This Validity Term!")
         end_date = end_date + relativedelta(days=validity_days)
         delta = end_date - today
         days_remaining = delta.days
         state = self.state
-        if state not in ('cancelled', 'approved'):
-            if days_remaining < 0:
-                self.write({'state': 'expired'})
+        if state not in ('cancelled', 'approved') and days_remaining < 0:
+            self.write({'state': 'expired'})
 
     @api.depends('date')
-    def _get_start_month(self):
+    def _compute_start_month(self):
         if self.date:
-            self.start_month = int(self.date.month)
+            self.start_month = self.date.month
 
     def process_month(self):
-        accounts = self.env['account.move'].search([])
-        for i in accounts:
-            if i.date:
-                month = int(i.date.month)
-                sql = """UPDATE service_quotation SET start_month = %s WHERE id = %s""" % (month, i.id)
-                self.env.cr.execute(sql)
+        quotations = self.env['service.quotation'].search([('date', '!=', False)])
+        for quotation in quotations:
+            quotation.start_month = quotation.date.month
 
     @api.model
     def create(self, vals):

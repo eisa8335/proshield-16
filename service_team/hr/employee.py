@@ -30,32 +30,51 @@ class EmployeeInherit(models.Model):
 
     @api.model
     def _cron_check_followup(self):
-        employee_ids = self.env['hr.employee'].search([])
-        template_id = self.env.ref('service_team.hr_document_followup_mail_inherit')
-        today = datetime.now().date()
-        employee_details_lst = []
-        count = 1
-        for each in employee_ids:
-            employee_details = {}
-            if each.passport_expiry_date and (
-                    each.passport_expiry_date - relativedelta(days=13)).date() == today:
-                employee_details['passport_expiry_date'] = each.passport_expiry_date
-            if each.visa_expiry_date and (
-                    each.visa_expiry_date - relativedelta(days=13)).date() == today:
-                employee_details['visa_expiry_date'] = each.visa_expiry_date
-            if each.dm_card_expiry_date and (
-                    each.dm_card_expiry_date - relativedelta(days=13)).date() == today:
-                employee_details['dm_card_expiry_date'] = each.dm_card_expiry_date
-            if each.eid_expiry_date and (
-                    each.eid_expiry_date - relativedelta(days=13)).date() == today:
-                employee_details['eid_expiry_date'] = each.eid_expiry_date
-            if employee_details:
-                employee_details['serial'] = count
-                employee_details['name'] = each.name
-                employee_details['number'] = each.employee_number
-                count += 1
-                employee_details_lst.append(employee_details)
-        if employee_details_lst:
-            if template_id:
-                template_id.with_context({'employee_details_lst': employee_details_lst}).send_mail(each.id,
-                                                                                                   force_send=True)
+        # Get all employees
+        employees = self.env['hr.employee'].search([])
+
+        # Get the follow-up email template
+        template = self.env.ref('service_team.hr_document_followup_mail_inherit')
+
+        # Get today's date
+        today = fields.Date.today()
+
+        # Create a list of employees due for follow-up
+        followup_employees = []
+        for employee in employees:
+            employee_followup = {}
+            if employee.passport_expiry_date and (
+                    employee.passport_expiry_date - relativedelta(days=13)).date() == today:
+                employee_followup['passport_expiry_date'] = employee.passport_expiry_date
+            if employee.visa_expiry_date and (employee.visa_expiry_date - relativedelta(days=13)).date() == today:
+                employee_followup['visa_expiry_date'] = employee.visa_expiry_date
+            if employee.dm_card_expiry_date and (employee.dm_card_expiry_date - relativedelta(days=13)).date() == today:
+                employee_followup['dm_card_expiry_date'] = employee.dm_card_expiry_date
+            if employee.eid_expiry_date and (employee.eid_expiry_date - relativedelta(days=13)).date() == today:
+                employee_followup['eid_expiry_date'] = employee.eid_expiry_date
+            if employee_followup:
+                employee_followup['name'] = employee.name
+                employee_followup['work_email'] = employee.work_email
+                followup_employees.append(employee_followup)
+
+        # Send the follow-up email for each employee
+        for employee_followup in followup_employees:
+            # Create a dictionary of employee details
+            followup_details = {}
+            for i, (key, value) in enumerate(employee_followup.items()):
+                if key == 'name':
+                    followup_details['name'] = value
+                elif key == 'work_email':
+                    continue
+                else:
+                    followup_details[key] = {
+                        'expiry_date': value,
+                        'serial': i + 1,
+                    }
+
+            # Send the follow-up email
+            if followup_details:
+                template.with_context({'employee_details': followup_details}).send_mail(
+                    recipient_ids=[(0, 0, {'email': employee_followup['work_email']})],
+                    force_send=True
+                )

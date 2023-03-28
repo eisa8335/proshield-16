@@ -36,7 +36,7 @@ class Contract(models.Model):
     partner_id = fields.Many2one('res.partner', string="Customer", required=True)
     contact_id = fields.Many2one('res.partner', string="Contact")
     date = fields.Date(string="Contract Date", default=fields.Date.today)
-    # job_area_id = fields.Many2one('job.area', string="Area Covered", required=False)
+    job_area_id = fields.Many2one('job.area', string="Area Covered", required=False)
     service_description = fields.Char(string="Service Description")
     amount = fields.Float(string="Contract Value", required=True)
     currency_id = fields.Many2one('res.currency', string="Currency", required=True)
@@ -54,7 +54,7 @@ class Contract(models.Model):
     job_duration = fields.Float(string="Job Duration", default=2.0)
     job_start_time = fields.Datetime(string="Job Start Time", required=True)
     account_manager_id = fields.Many2one('hr.employee', string="Account Manager")
-    # team_id = fields.Many2one('service.team', string="Preferred Team")
+    team_id = fields.Many2one('service.team', string="Preferred Team")
     ref = fields.Text(string="Internal Ref")
     next_execution_date = fields.Date(string="Next Execution Date")
     start_month = fields.Integer(compute='_get_start_month', store=True)
@@ -74,7 +74,7 @@ class Contract(models.Model):
 
     def _get_invoice_count(self):
         contract_id = self.id
-        obj_pool = self.env['account.invoice'].search([('contract_id', '=', contract_id)])
+        obj_pool = self.env['account.move'].search([('contract_id', '=', contract_id)])
         self.invoice_count = len(obj_pool)
 
     def _get_journal(self):
@@ -92,38 +92,43 @@ class Contract(models.Model):
 
     def button_create_jobs(self):
         if self.job_count > 0:
-            raise ValidationError("Already Jobs Are Created! if you Want Create New Ones, Please Delete All First")
+            raise ValidationError(
+                "Jobs already created. If you want to create new ones, please delete all the existing ones first.")
+
         job_pool = self.env['calendar.event']
         job_type = self.env['job.type'].search([('name', '=', 'Contract')], limit=1)
+
+        if not job_type:
+            raise ValidationError("No job type named Contract. Please create one.")
+
+        if not self.frequency_id.numbers:
+            raise ValidationError("The frequency number is not set. Please set it.")
+
         start_time = self.job_start_time
-        frequency_id = self.frequency_id
-        freq = frequency_id.numbers
+        freq = self.frequency_id.numbers
         total_days = self.get_number_of_days()
         freq_period_days = total_days / freq
         job_duration = self.job_duration
         job_value = self.amount / freq or 0.0
         recurring = self.recurring_job
         job_rec_days = self.job_recurring_days or False
-        job_area_id = self.job_area_id and self.job_area_id.id or False,
-        service_description = self.service_description
-        if not freq:
-            raise ValidationError("The Frequency Not set Number, Please Set it")
+        job_area_id = self.job_area_id.id or False
+        service_description = self.service_description or ''
         contract_name = self.name or ''
-        if not job_type:
-            raise ValidationError("There is No Job Type Named Contract, Please Create One")
+
         for x in range(1, freq + 1):
             stop_time = start_time + relativedelta(hours=job_duration)
             stop_time = str(stop_time)
             vals = {
                 'contract_id': self.id,
-                'partner_id': self.partner_id if self.partner_id.id else False,
-                'contact_id': self.contact_id if self.contact_id.id else False,
-                'product_id': self.product_id if self.product_id.id else False,
+                'partner_id': self.partner_id.id or False,
+                'contact_id': self.contact_id.id or False,
+                'product_id': self.product_id.id or False,
                 'job_type_id': job_type.id,
                 'warranty': '0',
                 'amount': 0.0,
                 'state': 'Unconfirmed',
-                'remarks': 'Job Number  ' + str(x) + '/ ' + str(freq) + ' of Contract : ' + contract_name,
+                'remarks': f"Job Number {x}/{freq} of Contract: {contract_name}",
                 'start': str(start_time),
                 'address': (self.partner_id.street or '') + '-' + (self.partner_id.street2 or ''),
                 'stop': stop_time,
@@ -135,36 +140,43 @@ class Contract(models.Model):
             }
             job = job_pool.create(vals)
             if recurring and job_rec_days:
-                job.with_context({'from_contract': True, 'job_value': job_value, 'job_area_id': job_area_id, 'service_description': service_description}).create_recurring_job()
+                job.with_context({'from_contract': True, 'job_value': job_value, 'job_area_id': job_area_id,
+                                  'service_description': service_description}).create_recurring_job()
             start_time = start_time + relativedelta(days=freq_period_days)
 
     def button_create_invoice(self):
         if self.invoice_count > 0:
-            raise ValidationError("Already Invoices Are Created! if you Want Create New Ones, Please Delete All First")
+            raise ValidationError(
+                "Invoices have already been created. If you want to create new ones, please delete all the existing ones first.")
+
         invoice_pool = self.env['account.move']
         product_pool = self.env['product.product']
         journal_id = self._get_journal()
         contract_payment = self.contract_payment
         numbers = contract_payment.numbers
+
         if not numbers:
-            raise ValidationError("Please Add Numbers in Contract Payment")
+            raise ValidationError("Please add numbers in contract payment.")
+
         date_freq = 12 / numbers
         date = self.job_start_time[:10]
         partner = self.partner_id
         total_amount = self.amount
         unit_amount = total_amount / numbers
+
         for x in range(1, numbers + 1):
             vals = {
                 'name': self.name or '',
-                'date_invoice': date,
+                'invoice_date': date,
                 'journal_id': journal_id.id,
                 'partner_id': partner.id,
                 'account_id': partner.property_account_receivable_id.id if partner.property_account_receivable_id else False,
                 'contract_id': self.id,
-                'payment_term_id': self.payment_term_id if self.payment_term_id.id else False
+                'payment_term_id': self.payment_term_id.id if self.payment_term_id else False
             }
+
             invoice_line_val = {}
-            name = 'Payment No-' + str(x) + ' Contract Ref: ' + self.name or ''
+            name = f"Payment No-{x} Contract Ref: {self.name or ''}"
             credit_account_id = journal_id.default_credit_account_id.id if journal_id.default_credit_account_id else False
             contract_pdt_id = 129
             invoice_line_val['account_id'] = credit_account_id
@@ -175,19 +187,18 @@ class Contract(models.Model):
 
             product = product_pool.browse(contract_pdt_id)
             tax_ids = [tax.id for tax in product.taxes_id]
-            invoice_line_val['invoice_line_tax_ids'] = [[6, False, tax_ids]]
+            invoice_line_val['invoice_line_tax_ids'] = [(6, False, tax_ids)]
             vals['invoice_line_ids'] = [(0, 0, invoice_line_val)]
             invoice = invoice_pool.create(vals)
-            date = datetime.strptime(str(date), '%Y-%m-%d')
-            date = date + relativedelta(months=date_freq)
-            date = str(date)
-            date = date[:10]
+
+            date = datetime.strptime(date, '%Y-%m-%d').date()
+            date += relativedelta(months=date_freq)
+            date = date.strftime('%Y-%m-%d')
 
     @api.onchange('date_start')
-    def onchange_date_star(self):
-        date_start = self.date_start
-        if date_start:
-            date_end = date_start + relativedelta(years=1, days=-1)
+    def onchange_date_start(self):
+        if self.date_start:
+            date_end = self.date_start + relativedelta(years=1, days=-1)
             self.date_end = date_end
 
     def button_open_invoices(self):
@@ -197,18 +208,18 @@ class Contract(models.Model):
         }
         domain = [('contract_id', '=', self.id)]
         # Select the view
-        tree_view = self.env.ref('account.invoice_tree', False)
-        form_view = self.env.ref('account.invoice_form', False)
+        tree_view = self.env.ref('account.view_invoice_tree', raise_if_not_found=False)
+        form_view = self.env.ref('account.view_move_form', raise_if_not_found=False)
 
         return {
             'name': _('Invoices'),
+            'type': 'ir.actions.act_window',
             'view_type': 'form',
             'view_mode': 'tree,form',
             'res_model': 'account.move',
             'context': ctx,
             'domain': domain,
-            'views': [(tree_view.id, 'tree'), (form_view.id, 'form')],
-            'type': 'ir.actions.act_window',
+            'views': [(tree_view.id, 'tree'), (form_view.id, 'form')]
         }
 
     def button_open_jobs(self):
@@ -223,13 +234,13 @@ class Contract(models.Model):
 
         return {
             'name': _('Jobs'),
+            'type': 'ir.actions.act_window',
             'view_type': 'form',
             'view_mode': 'tree,form',
             'res_model': 'calendar.event',
             'context': ctx,
             'domain': domain,
-            'views': [(tree_view if tree_view.id else False, 'tree'), (form_view if form_view.id else False, 'form')],
-            'type': 'ir.actions.act_window',
+            'views': [(tree_view.id, 'tree'), (form_view.id, 'form')]
         }
 
     def button_confirm(self):
@@ -273,44 +284,34 @@ class Contract(models.Model):
     def _cron_check_followup(self):
         order_ids = self.env['service.contract'].search([('state', 'in', ['expired', 'expiring'])])
         template_id = self.env.ref('service_team.service_contract_followup_mail_inherit')
-        today = datetime.now().date()
-        emp_lst = []
-        for each in order_ids:
-            if each.next_execution_date:
-                next_execution_date = each.next_execution_date
-                date_after_fifteen_days = next_execution_date + relativedelta(days=15)
-                date_after_15_days = date_after_fifteen_days.date()
-                if today == date_after_15_days:
-                    if each.employee_id.id not in emp_lst:
-                        emp_lst.append(each.employee_id.id)
+        today = fields.Date.today()
 
-        for each in emp_lst:
+        emp_lst = set()
+        for order in order_ids.filtered(lambda o: o.next_execution_date):
+            date_after_fifteen_days = order.next_execution_date + relativedelta(days=15)
+            if today == date_after_fifteen_days.date():
+                emp_lst.add(order.employee_id.id)
+
+        for emp_id in self.env['hr.employee'].browse(emp_lst):
             service_contract_detail_list = []
-            count = 1
-            for order_id in order_ids.filtered(lambda l: l.employee_id.id == each):
-                if order_id.next_execution_date:
-                    next_execution_date = order_id.next_execution_date
-                    date_after_fifteen_days = next_execution_date + relativedelta(
-                        days=15)
-                    date_after_15_days = date_after_fifteen_days.date()
-                    if today == date_after_15_days:
-                        service_contract_details = {
-                            'serial': count,
-                            'name': order_id.name,
-                            'partner_id': order_id.partner_id.name,
-                            'date_start': order_id.date_start,
-                            'date_end': order_id.date_end,
-                            'amount': order_id.amount,
-                        }
-                        count += 1
-                        service_contract_detail_list.append(service_contract_details)
-                        order_id.next_execution_date = date_after_15_days
-            if emp_lst:
-                emp_id = self.env['hr.employee'].browse(each)
-                if emp_id.work_email:
-                    template_id.email_to = emp_id.work_email
-                if template_id:
-                    template_id.with_context({'quotation_list': service_contract_detail_list}).send_mail(order_id.id, force_send=True)
+            for count, order in enumerate(
+                    order_ids.filtered(lambda o: o.next_execution_date and o.employee_id.id == emp_id.id), 1):
+                date_after_fifteen_days = order.next_execution_date + relativedelta(days=15)
+                if today == date_after_fifteen_days.date():
+                    service_contract_details = {
+                        'serial': count,
+                        'name': order.name,
+                        'partner_id': order.partner_id.name,
+                        'date_start': order.date_start,
+                        'date_end': order.date_end,
+                        'amount': order.amount,
+                    }
+                    service_contract_detail_list.append(service_contract_details)
+                    order.next_execution_date = date_after_fifteen_days.date()
+
+            if emp_id.work_email and service_contract_detail_list:
+                template_id.email_to = emp_id.work_email
+                template_id.with_context({'quotation_list': service_contract_detail_list}).send_mail(order_id.id, force_send=True)
 
     def get_expiry(self):
         today = fields.Date.today()
@@ -320,58 +321,52 @@ class Contract(models.Model):
         state = self.state
         if state not in ('cancelled', 'renewed', 'not_renewed'):
             if 30 >= days_remaining >= 0:
-                self.write({'state': 'expiring'})
-            if days_remaining < 0:
-                self.write({'state': 'expired'})
+                self.state = 'expiring'
+            elif days_remaining < 0:
+                self.state = 'expired'
 
     def _get_next_job(self):
         job_pool = self.env['calendar.event']
         job_ids = job_pool.search([('contract_id', '=', self.id)])
         res = []
         for job in job_ids:
-            res.append((job.id, job.start))
-        current_time = str(datetime.now())
-        for job in res:
-            if job[1] < current_time:
-                res.remove(job)
+            if job.start > fields.Datetime.now():
+                res.append((job.id, job.start))
         res.sort(key=lambda tup: tup[1])
         if res:
             self.next_job_date = res[0][1]
+        else:
+            self.next_job_date = False
 
     def _get_amount_balance(self):
         invoice_pool = self.env['account.move']
         invoice_ids = invoice_pool.search([('contract_id', '=', self.id)])
 
-        amount_balance = 0.0
-        for invoice in invoice_ids:
-            amount_balance += invoice.residual
+        amount_balance = sum(invoice.residual for invoice in invoice_ids)
         self.amount_balance = amount_balance
 
     @api.onchange('date_end')
     def onchange_date_end(self):
         if self.date_end:
             end_date = self.date_end - relativedelta(days=30)
-            self.next_execution_date = end_date.date()
+            self.next_execution_date = end_date
 
     def _get_paid_amount(self):
         invoice_pool = self.env['account.move']
-        invoice_ids = invoice_pool.search([('contract_id', '=', self.id), ('state', 'in', ('open', 'paid'))])
-        paid_amount = sum([inv.amount_total - inv.residual for inv in invoice_ids])
+        invoice_ids = invoice_pool.search([('contract_id', '=', self.id), ('payment_state', 'in', ('not_paid', 'paid'))])
+        paid_amount = sum(invoice_ids.mapped('amount_total')) - sum(invoice_ids.mapped('residual'))
         self.paid_amount = paid_amount
 
     @api.depends('date_start')
     def _get_start_month(self):
         if self.date_start:
-            self.start_month = int(self.date_start.month)
+            self.start_month = self.date_start.month
 
     @api.model
     def process_month(self):
-        accounts = self.env['service.contract'].search([])
-        for i in accounts:
-            if i.date:
-                month = int(i.date_start.month)
-                sql = """UPDATE service_contract SET start_month = %s WHERE id = %s""" % (month, i.id)
-                self.env.cr.execute(sql)
+        accounts = self.env['service.contract'].search([('date_start', '!=', False)])
+        for account in accounts:
+            account.start_month = account.date_start.month
 
     @api.model
     def create(self, vals):

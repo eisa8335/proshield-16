@@ -455,7 +455,7 @@ class Event(models.Model):
         partner = self.partner_id
         vals = {
             'name': self.job_card,
-            'date_invoice': self.invoice_date,
+            'invoice_date': self.invoice_date,
             'journal_id': journal_id.id,
             'partner_id': partner.id,
             'account_id': partner.property_account_receivable_id and partner.property_account_receivable_id.id or False,

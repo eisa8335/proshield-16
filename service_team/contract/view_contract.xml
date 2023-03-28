@@ -58,12 +58,12 @@
                 <filter name="state" string="Not-Renewed" domain="[('state','=','not_renewed')]"/>
                 <filter name="state" string="Cancelled" domain="[('state','=','cancelled')]"/>
                 <separator/>
-                <!--                <filter icon="terp-go-month" string="Expired Last Month"-->
-                <!--                        domain="[('state','=','expired'), ('date_end', '&gt;=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01')),                 ('date_end', '&lt;', (context_today()).strftime('%Y-%m-01'))]"-->
-                <!--                        help="last month"/>-->
-                <!--                <filter string="Expiring This Month" name="current_month"-->
-                <!--                        domain="[('state','=', 'expiring'),('date_end','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('date_end','&gt;=',time.strftime('%Y-%m-01'))]"/>-->
-                <!--                <separator/>-->
+                <filter icon="terp-go-month" string="Expired Last Month" name="expired_last_month"
+                        domain="[('state','=','expired'), ('date_end', '&gt;=', (datetime.today() - relativedelta(months=1)).replace(day=1).strftime('%Y-%m-%d')), ('date_end', '&lt;', datetime.today().replace(day=1).strftime('%Y-%m-%d'))]"
+                        help="last month"/>
+                <filter string="Expiring This Month" name="current_month"
+                        domain="[('state','=', 'expiring'),('date_end','&lt;',(datetime.today() + relativedelta(months=1)).replace(day=1).strftime('%Y-%m-%d')), ('date_end','&gt;=',datetime.today().replace(day=1).strftime('%Y-%m-%d'))]"/>
+                <separator/>
                 <filter string="January" name="jan"
                         domain="[('start_month','=',1)]"
                         help="January"/>
@@ -101,12 +101,12 @@
                         domain="[('start_month','=',12)]"
                         help="December"/>
                 <separator/>
-                <!--                <filter string="Current Year" name="current_year"-->
-                <!--                        domain="[('date_start','&gt;=',time.strftime('%Y-01-01')), ('date','&lt;=',time.strftime('%Y-12-31'))]"-->
-                <!--                        help="This year"/>-->
-                <!--                <filter string="Last Year" name="last_year"-->
-                <!--                        domain="[('date_start','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('date_start','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"-->
-                <!--                        help="Last year"/>-->
+                <filter string="Current Year" name="current_year"
+                        domain="[('date_start','&gt;=',time.strftime('%Y-01-01')), ('date','&lt;=',time.strftime('%Y-12-31'))]"
+                        help="This year"/>
+                <filter string="Last Year" name="last_year"
+                        domain="[('date_start','&gt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-01-01')), ('date_start','&lt;=',(datetime.datetime.now() - relativedelta(years=1)).strftime('%Y-12-31'))]"
+                        help="Last year"/>
             </search>
         </field>
     </record>
@@ -171,7 +171,7 @@
                             <field name="amount"/>
                             <field name="currency_id"/>
                             <field name="product_id" domain="[('type', '=', 'service')]"/>
-                            <!--                            <field name="job_area_id" required="1"/>-->
+                            <field name="job_area_id" required="1"/>
                             <field name="service_description"/>
                             <field name="frequency_id" string="Frequency"/>
                             <field name="callback_id"/>
@@ -184,7 +184,7 @@
                         </group>
                         <group>
                             <field name="account_manager_id"/>
-                            <!--                            <field name="team_id"/>-->
+                            <field name="team_id"/>
                         </group>
                         <group>
                             <field name="next_job_date" invisible="1"/>

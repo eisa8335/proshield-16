@@ -116,12 +116,14 @@
             <field name="arch" type="xml">
                 <form string="Quotation">
                     <header>
-                        <button string="Approve" name="approve" type="object" class="oe_highlight" states="valid" confirm="Are you sure you want to Approve this Quotation?"/>
+                        <button string="Approve" name="approve" type="object" class="oe_highlight" states="valid"
+                                confirm="Are you sure you want to Approve this Quotation?"/>
                         <button string="Refresh" name="refresh" type="object" class="oe_highlight"/>
                         <button string="Create Contract" name="create_contract" type="object" class="oe_highlight"
                                 states="approved"/>
                         <button string="Cancel" name="cancel" type="object" class="oe_highlight"
-                                states="valid,approved,expired" confirm="Are you sure you want to Cancel this Quotation?"/>
+                                states="valid,approved,expired"
+                                confirm="Are you sure you want to Cancel this Quotation?"/>
                         <button string="Re-instate" name="reinstate" type="object" class="oe_highlight"
                                 states="cancelled"/>
                         <field name="state" widget="statusbar"/>
@@ -151,11 +153,11 @@
                                 <field name="product_id"
                                        attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"
                                        domain="[('type', '=', 'service')]"/>
-                                <!--                                <field name="job_area_id"-->
-                                <!--                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>-->
+                                <field name="job_area_id"
+                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>
                                 <field name="service_description" attrs="{'invisible':[('residential','=',False)]}"/>
-                                <!--                                <field name="job_type_id"-->
-                                <!--                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>-->
+                                <field name="job_type_id"
+                                       attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>
                                 <field name="followup_visit"
                                        attrs="{'invisible':[('residential','=',False)],'required':[('residential','=',True)]}"/>
                                 <field name="followup_days"

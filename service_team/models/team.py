@@ -104,7 +104,7 @@ class ServiceTeamCollection(models.TransientModel):
             if res.name:
                 invoice_obj = self.env['account.invoice']
                 invoice_ids = invoice_obj.search(
-                    [('service_team_id', '=', res.name.id), ('state', 'in', ['open', 'paid'])])
+                    [('service_team_id', '=', res.name.id), ('payment_state', 'in', ['not_paid', 'paid'])])
                 if invoice_ids:
                     if res.name.collection_record_id:
                         total_amount = 0.0
