@@ -7,22 +7,13 @@
             <field name="model">calendar.event</field>
             <field name="priority" eval="2"/>
             <field name="arch" type="xml">
-                <calendar js_class="attendee_calendar" string="Scheduling" date_start="start" date_stop="stop"
-                          date_delay="duration" mode="week" quick_add="False" color="service_team">
+                <calendar string="Scheduling" date_start="start" date_stop="stop" quick_add="False" color="service_team">
                     <field name="service_team"/>
                     <field name="partner_id" attrs="{'invisible':[('partner_id','=',False)]}"/>
                     <field name="area_id" attrs="{'invisible':[('area_id','=',False)]}"/>
                     <field name="state"/>
                     <field name="block" invisible="1"/>
                     <field name="block_label" attrs="{'invisible':[('block','=',False)]}"/>
-                    <field name="attendee_status" invisible="1"/>
-                    <field name="partner_ids" options="{'block': True, 'icon': 'fa fa-users'}"
-                           filters="1" widget="many2manyattendee" write_model="calendar.filters"
-                           write_field="partner_id" filter_field="partner_checked" avatar_field="avatar_128"
-                    />
-                    <field name="videocall_location" widget="url" text="Join Video Call"
-                           options="{'icon': 'fa fa-lg fa-video-camera'}"
-                           attrs="{'invisible': [('videocall_location', '=', False)]}"/>
                 </calendar>
             </field>
         </record>
@@ -72,12 +63,13 @@
                             <label for="service_team"/>
                             <field name="service_team" attrs="{'readonly':[('state','=','unconfirmed')]}"/>
                         </div>
+                        <br/>
+                        <br/>
                         <group>
                             <group attrs="{'invisible':[('block','=',True)]}">
                                 <field name="partner_id" attrs="{'required':[('block','=',False)]}"
-                                       widget="many2one_avatar" readonly="0"/>
-                                <field name="contact_id" domain="[('parent_id', '=', partner_id)]"
-                                       widget="many2one_avatar"/>
+                                       readonly="0"/>
+                                <field name="contact_id" domain="[('parent_id', '=', partner_id)]"/>
                                 <field name="contact_mobile" attrs="{'invisible':[('contact_mobile','=',False)]}"
                                        widget="phone"/>
                                 <field name="partner_ids" widget="many2many_tags" invisible="1"/>
@@ -358,7 +350,7 @@
         <menuitem
                 id="mail_menu_job_calendar"
                 name="Jobs"
-                sequence="3"
+                sequence="1"
                 action="job_cal_scheduling_act"/>
 
     </data>

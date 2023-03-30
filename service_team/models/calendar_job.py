@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models, _
+from odoo import api, fields, models, tools, _
 from datetime import date, datetime, timedelta
 from odoo.exceptions import ValidationError
-
-from odoo import tools
-from odoo.tools.translate import _
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 from dateutil.relativedelta import relativedelta
 import logging
@@ -29,10 +26,6 @@ class Event(models.Model):
         selection_ext = [(str(x), str(x) + ' Months') for x in range(1, 13)]
         selection.extend(selection_ext)
         return selection
-
-    def get_default_job_duration(self):
-        duration = float(self.get_value_from_param('job_duration'))
-        return duration
 
     def get_value_from_param(self, param):
         parameter_obj = self.env['ir.config_parameter']
@@ -72,8 +65,8 @@ class Event(models.Model):
     phone = fields.Char(string="Phone", related='partner_id.phone', store=True)
     street = fields.Char(string="Address", related='partner_id.street', store=True)
     street2 = fields.Char(string="Address2", related='partner_id.street2', store=True)
-    partner_latitude = fields.Float(string="Lat", digits=(16, 5), related='partner_id.partner_latitude', store=True)
-    partner_longitude = fields.Float(string="Long", digits=(16, 5), related='partner_id.partner_longitude', store=True)
+    partner_latitude = fields.Float(string="Lat", digits=(16, 5), related='partner_id.partner_latitude', store=True, readonly=False)
+    partner_longitude = fields.Float(string="Long", digits=(16, 5), related='partner_id.partner_longitude', store=True, readonly=False)
     warranty = fields.Selection(get_warrant_selection, string="Warranty")
     warranty_counter = fields.Char(string="Warranty Counter", compute="_get_remaining_days", store=True)
     completed_on = fields.Date(string="Completed On")
@@ -93,8 +86,7 @@ class Event(models.Model):
     recurring_job_created = fields.Boolean(string="Recurring Job Created")
     job_card = fields.Char(string="Job Card#", size=5, copy=False)
     jcn_not_required = fields.Boolean(string="JCN Not Required")
-    # job_duration = fields.Float(string="Job Duration", default=get_default_job_duration)
-    job_duration = fields.Float(string="Job Duration", default=0)
+    job_duration = fields.Float(string="Job Duration", compute='_get_job_duration', store=True)
     invoice_id = fields.Many2one('account.move', string="Invoice", )
     paid_amount = fields.Float(string="Paid Amount", readonly=True, compute="_get_inv_amount", store=True)
     balance = fields.Float(string="Balance", readonly=True, compute="_get_inv_amount", store=True)
@@ -175,8 +167,7 @@ class Event(models.Model):
     def _get_vat_amount(self):
         for rec in self:
             if not rec.vat_included and rec.amount:
-                vat = sum([x.amount for x in rec.product_id.taxes_id])
-                rec.vat_amount = rec.amount * (vat / 100)
+                rec.vat_amount = rec.amount * (5 / 100)
 
     @api.depends('start')
     def _get_start_month(self):
@@ -216,6 +207,15 @@ class Event(models.Model):
             self.balance = balance
             self.invoice_tax = invoice_id.amount_tax
 
+    @api.depends('start', 'stop')
+    def _get_job_duration(self):
+        for rec in self:
+            if rec.start and rec.stop:
+                duration = (rec.stop - rec.start).total_seconds() / 3600
+                rec.job_duration = duration
+            else:
+                rec.job_duration = 0
+
     def get_inv_balance(self):
         balance = 0.0
         invoice_id = self.invoice_id
@@ -232,9 +232,6 @@ class Event(models.Model):
         st_number = SequenceObj.next_by_code('job.event')
         vals['job_id'] = st_number
         vals['name'] = st_number
-        if not vals.get('duration', False):
-            job_duration = vals.get('job_duraion', 2.0)
-            vals['duration'] = job_duration
         if not vals.get('invoice_date', False):
             vals['invoice_date'] = vals['start'][:10]
         if vals.get('start', False):
