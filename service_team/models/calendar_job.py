@@ -58,13 +58,13 @@ class Event(models.Model):
     partner_id = fields.Many2one('res.partner', string="Customer")
     area_id = fields.Many2one('area.area', string="Area", related='partner_id.area_id', store=True)
     premise_type_id = fields.Many2one('premise.type', string="Premise Type", related='partner_id.premise_type_id',
-                                      store=True)
+                                      store=True, readonly=False)
     job_value = fields.Float(string="Average Job Value", readonly=True)
     call_back = fields.Boolean(string="Call Back")
     call_back_team_id = fields.Many2one('service.team', string="Call Back")
-    phone = fields.Char(string="Phone", related='partner_id.phone', store=True)
-    street = fields.Char(string="Address", related='partner_id.street', store=True)
-    street2 = fields.Char(string="Address2", related='partner_id.street2', store=True)
+    phone = fields.Char(string="Phone", related='partner_id.phone', store=True, readonly=False)
+    street = fields.Char(string="Address", related='partner_id.street', store=True, readonly=False)
+    street2 = fields.Char(string="Address2", related='partner_id.street2', store=True, readonly=False)
     partner_latitude = fields.Float(string="Lat", digits=(16, 5), related='partner_id.partner_latitude', store=True, readonly=False)
     partner_longitude = fields.Float(string="Long", digits=(16, 5), related='partner_id.partner_longitude', store=True, readonly=False)
     warranty = fields.Selection(get_warrant_selection, string="Warranty")
@@ -233,9 +233,9 @@ class Event(models.Model):
         vals['job_id'] = st_number
         vals['name'] = st_number
         if not vals.get('invoice_date', False):
-            vals['invoice_date'] = vals['start'][:10]
+            vals['invoice_date'] = vals['start'].date()
         if vals.get('start', False):
-            vals['job_date'] = vals['start'][:10]
+            vals['job_date'] = vals['start'].date()
         res = super(Event, self).create(vals)
         if res.partner_id.company_type == 'person' and res.state != 'unconfirmed':
             res.send_smsnow()
@@ -337,7 +337,7 @@ class Event(models.Model):
     def receive(self):
         #         self.create_invoice()
         self.get_inv_amount()
-        self.create_followup()
+        # self.create_followup()
         if self.partner_id.company_type == 'person' and self.paid_amount > 0.0:
             sms_pool = self.env['sms.sms']
             default_str = 'Dear %s <br/> Your payment of %s AED is received & registered in our system. Thank you for choosing Pro Shield Pest Control Services. For any query plz call <br/> 043888235' % (

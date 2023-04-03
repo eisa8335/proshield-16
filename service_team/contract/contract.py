@@ -18,8 +18,8 @@ class Contract(models.Model):
     paid_amount = fields.Float(string="Paid Amount", compute="_get_paid_amount", store=True)
     amount_balance = fields.Float(string="Amount Balance", compute="_get_amount_balance", store=True)
     next_job_date = fields.Datetime(string="Next Job On", compute="_get_next_job", store=True)
-    job_count = fields.Integer(string="Jobs Count", compute="_get_job_count", store=True)
-    invoice_count = fields.Integer(string="Invoice Count", compute="_get_invoice_count", store=True)
+    job_count = fields.Integer(string="Jobs Count", compute="_get_job_count")
+    invoice_count = fields.Integer(string="Invoice Count", compute="_get_invoice_count")
     state = fields.Selection([('draft', 'Draft'), ('valid', 'Valid'), ('expiring', 'Expiring'), ('expired', 'Expired'),
                               ('renewed', 'Renewed'), ('not_renewed', 'Not-Renewed'), ('cancelled', 'Cancelled')],
                              string="Status", default='draft')
@@ -118,19 +118,18 @@ class Contract(models.Model):
 
         for x in range(1, freq + 1):
             stop_time = start_time + relativedelta(hours=job_duration)
-            stop_time = str(stop_time)
             vals = {
                 'contract_id': self.id,
-                'partner_id': self.partner_id.id or False,
-                'contact_id': self.contact_id.id or False,
-                'product_id': self.product_id.id or False,
+                'partner_id': self.partner_id.id if self.partner_id else False,
+                'contact_id': self.contact_id.id if self.contact_id else False,
+                'product_id': self.product_id.id if self.product_id else False,
                 'job_type_id': job_type.id,
                 'warranty': '0',
                 'amount': 0.0,
-                'state': 'Unconfirmed',
+                'state': 'unconfirmed',
                 'remarks': f"Job Number {x}/{freq} of Contract: {contract_name}",
-                'start': str(start_time),
-                'address': (self.partner_id.street or '') + '-' + (self.partner_id.street2 or ''),
+                'start': start_time,
+                'street': (self.partner_id.street or '') + '-' + (self.partner_id.street2 or ''),
                 'stop': stop_time,
                 'recurring_job': recurring,
                 'job_recurring_days': job_rec_days,
@@ -159,7 +158,7 @@ class Contract(models.Model):
             raise ValidationError("Please add numbers in contract payment.")
 
         date_freq = 12 / numbers
-        date = self.job_start_time[:10]
+        date = self.job_start_time.date()
         partner = self.partner_id
         total_amount = self.amount
         unit_amount = total_amount / numbers
@@ -170,15 +169,14 @@ class Contract(models.Model):
                 'invoice_date': date,
                 'journal_id': journal_id.id,
                 'partner_id': partner.id,
-                'account_id': partner.property_account_receivable_id.id if partner.property_account_receivable_id else False,
                 'contract_id': self.id,
-                'payment_term_id': self.payment_term_id.id if self.payment_term_id else False
+                'invoice_payment_term_id': self.payment_term_id.id if self.payment_term_id else False
             }
 
             invoice_line_val = {}
             name = f"Payment No-{x} Contract Ref: {self.name or ''}"
-            credit_account_id = journal_id.default_credit_account_id.id if journal_id.default_credit_account_id else False
-            contract_pdt_id = 129
+            credit_account_id = journal_id.default_account_id.id if journal_id.default_account_id else False
+            contract_pdt_id = 1
             invoice_line_val['account_id'] = credit_account_id
             invoice_line_val['name'] = name
             invoice_line_val['product_id'] = contract_pdt_id
@@ -187,13 +185,13 @@ class Contract(models.Model):
 
             product = product_pool.browse(contract_pdt_id)
             tax_ids = [tax.id for tax in product.taxes_id]
-            invoice_line_val['invoice_line_tax_ids'] = [(6, False, tax_ids)]
+            invoice_line_val['tax_ids'] = [(6, False, tax_ids)]
             vals['invoice_line_ids'] = [(0, 0, invoice_line_val)]
             invoice = invoice_pool.create(vals)
 
-            date = datetime.strptime(date, '%Y-%m-%d').date()
-            date += relativedelta(months=date_freq)
-            date = date.strftime('%Y-%m-%d')
+            # date = datetime.strptime(date, '%Y-%m-%d').date()
+            # date += relativedelta(months=date_freq)
+            # date = date.strftime('%Y-%m-%d')
 
     @api.onchange('date_start')
     def onchange_date_start(self):

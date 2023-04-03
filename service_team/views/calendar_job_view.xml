@@ -75,10 +75,10 @@
                                 <field name="partner_ids" widget="many2many_tags" invisible="1"/>
                                 <field name="mobile" attrs="{'invisible':[('mobile','=',False)]}"/>
                                 <field name="phone" attrs="{'invisible':[('phone','=',False)]}"/>
-                                <field name="area_id" attrs="{'invisible':[('area_id','=',False)]}"/>
-                                <field name="premise_type_id" attrs="{'invisible':[('premise_type_id','=',False)]}"/>
-                                <field name="street" attrs="{'invisible':[('street','=',False)]}"/>
-                                <field name="street2" attrs="{'invisible':[('street2','=',False)]}"/>
+                                <field name="area_id" attrs="{'invisible':[('partner_id','=',False)]}"/>
+                                <field name="premise_type_id" attrs="{'invisible':[('partner_id','=',False)]}"/>
+                                <field name="street" attrs="{'invisible':[('partner_id','=',False)]}"/>
+                                <field name="street2" attrs="{'invisible':[('partner_id','=',False)]}"/>
                                 <field name="location" invisible="1"/>
                                 <field name="partner_latitude" attrs="{'invisible':[('partner_latitude','=',False)]}"/>
                                 <field name="partner_longitude"
@@ -238,6 +238,7 @@
                     <separator/>
                     <filter name="call_back" string="Callback Jobs" domain="[('call_back', '=', True)]"/>
                     <filter name="Amount" string="Amount > 0" domain="[('amount','&gt;','0')]"/>
+                    <filter name="team_a" string="Team A" domain="[('service_team.name', '=', 'Eisa Ahmed')]"/>
                     <separator/>
                     <separator/>
                     <filter string="Yesterday" name="Yesterday" separator="1"

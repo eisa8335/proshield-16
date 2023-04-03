@@ -28,6 +28,9 @@
         <record id="channel_job" model="mail.channel">
             <field name="name">Jobs</field>
         </record>
+        <record id="job_type_contract" model="job.type">
+            <field name="name">Contract</field>
+        </record>
 
     </data>
 </odoo>
