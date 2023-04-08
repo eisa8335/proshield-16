@@ -140,7 +140,7 @@
                                 <field name="residential"/>
                                 <field name="partner_id" widget="many2one_avatar"/>
                                 <field name="contact_id"
-                                       domain="[('parent_id', '=', partner_id)]" widget="many2one_avatar"/>
+                                       domain="[('parent_id', '=', partner_id)]"/>
                                 <field name="date"/>
                                 <field name="payment_term_id"/>
                                 <field name="validity_id"/>

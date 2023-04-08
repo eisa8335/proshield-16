@@ -119,6 +119,7 @@ class Contract(models.Model):
         for x in range(1, freq + 1):
             stop_time = start_time + relativedelta(hours=job_duration)
             vals = {
+                'name': contract_name,
                 'contract_id': self.id,
                 'partner_id': self.partner_id.id if self.partner_id else False,
                 'contact_id': self.contact_id.id if self.contact_id else False,

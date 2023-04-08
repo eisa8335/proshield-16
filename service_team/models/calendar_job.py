@@ -13,6 +13,7 @@ _logger = logging.getLogger(__name__)
 class JobType(models.Model):
     _name = "job.type"
     _description = "Job Type"
+
     name = fields.Char(string="Job Type")
 
 
@@ -56,7 +57,7 @@ class Event(models.Model):
     block = fields.Boolean(string="Block")
     block_label = fields.Char(string="Block Label", compute='get_block_label', store=True)
     partner_id = fields.Many2one('res.partner', string="Customer")
-    area_id = fields.Many2one('area.area', string="Area", related='partner_id.area_id', store=True)
+    area_id = fields.Many2one('area.area', string="Area", related='partner_id.area_id', store=True, readonly=False)
     premise_type_id = fields.Many2one('premise.type', string="Premise Type", related='partner_id.premise_type_id',
                                       store=True, readonly=False)
     job_value = fields.Float(string="Average Job Value", readonly=True)
@@ -72,7 +73,7 @@ class Event(models.Model):
     completed_on = fields.Date(string="Completed On")
     product_id = fields.Many2one('product.product', string="Service Type")
     job_type_id = fields.Many2one('job.type', string="Job Type")
-    mobile = fields.Char(string="Mobile", related='partner_id.mobile', store=True)
+    mobile = fields.Char(string="Mobile", related='partner_id.mobile', store=True, readonly=False)
     service_team = fields.Many2one('service.team', string="Team")
     amount = fields.Float(string="Amount")
     remarks = fields.Text(string="Remarks", translate=True)

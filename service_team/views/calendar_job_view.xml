@@ -7,7 +7,8 @@
             <field name="model">calendar.event</field>
             <field name="priority" eval="2"/>
             <field name="arch" type="xml">
-                <calendar string="Scheduling" date_start="start" date_stop="stop" quick_add="False" color="service_team">
+                <calendar string="Scheduling" date_start="start" date_stop="stop" quick_add="False"
+                          color="service_team">
                     <field name="service_team"/>
                     <field name="partner_id" attrs="{'invisible':[('partner_id','=',False)]}"/>
                     <field name="area_id" attrs="{'invisible':[('area_id','=',False)]}"/>
@@ -73,7 +74,7 @@
                                 <field name="contact_mobile" attrs="{'invisible':[('contact_mobile','=',False)]}"
                                        widget="phone"/>
                                 <field name="partner_ids" widget="many2many_tags" invisible="1"/>
-                                <field name="mobile" attrs="{'invisible':[('mobile','=',False)]}"/>
+                                <field name="mobile" attrs="{'invisible':[('partner_id','=',False)]}"/>
                                 <field name="phone" attrs="{'invisible':[('phone','=',False)]}"/>
                                 <field name="area_id" attrs="{'invisible':[('partner_id','=',False)]}"/>
                                 <field name="premise_type_id" attrs="{'invisible':[('partner_id','=',False)]}"/>
