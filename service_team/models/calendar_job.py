@@ -234,12 +234,13 @@ class Event(models.Model):
         vals['job_id'] = st_number
         vals['name'] = st_number
         if not vals.get('invoice_date', False):
-            vals['invoice_date'] = vals['start'].date()
+            vals['invoice_date'] = datetime.strptime(vals['start'], '%Y-%m-%d %H:%M:%S').date()
         if vals.get('start', False):
-            vals['job_date'] = vals['start'].date()
+            vals['job_date'] = datetime.strptime(vals['start'], '%Y-%m-%d %H:%M:%S').date()
         res = super(Event, self).create(vals)
         if res.partner_id.company_type == 'person' and res.state != 'unconfirmed':
-            res.send_smsnow()
+            pass
+            #res.send_smsnow()
         return res
 
     def write(self, vals):

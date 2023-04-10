@@ -22,6 +22,8 @@
         'data/service.payment.term.csv',
         'data/service.scope.work.csv',
         'data/service.validity.csv',
+        'data/area.area.csv',
+        'data/premise.type.csv',
         'data/data.xml',
         # 'data/channel.xml',
         # 'data/scheduled_action.xml',
