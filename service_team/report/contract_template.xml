@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_contract_document">
+        <t t-call="web.external_layout">
+            <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+            <t t-set="company" t-value="res_company"/>
+            <div class="page">
+                <!-- Page Counter -->
+                <div class="footer">
+                    <div class="text-right">
+                        <ul class="list-inline">
+                            <li>
+                                <span t-field="doc.name"/>
+                            </li>
+                            <li>-</li>
+                            Page:<span class="page"/>/
+                            <span class="topage"/>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Logo -->
+                <div style="text-align: center">
+                    <img src="/service_team/static/src/img/logo.jpg" width="380"/>
+                </div>
+
+                <!-- Report Title -->
+                <t t-if="doc.select_service == 'cps'">
+                    <h3 style="text-align:center;color:F1C40F;">
+                        <strong>
+                            <b>PEST MANAGEMENT AGREEMENT</b>
+                        </strong>
+                    </h3>
+                </t>
+                <t t-else="">
+                    <h3 style="text-align:center;color:F1C40F;">
+                        <strong>
+                            <b>DISINFECTION MANAGEMENT AGREEMENT</b>
+                        </strong>
+                    </h3>
+                </t>
+                <br/>
+                <p style="text-align:center;font-size:16px;"><strong>Agreement Reference</strong>:
+                    <span t-field="doc.name"/>
+                </p>
+                <br/>
+                <h4 style="text-align:center;">This Agreement was made on
+                    <span t-field="doc.date" t-field-options="{&quot;format&quot;: &quot;d MMMM y&quot;}"/>
+                    by and between:
+                </h4>
+                <!-- Client -->
+                <br/>
+                <h4 style="text-align:center;">
+                    <strong>
+                        <span t-field="doc.partner_id"/>
+                    </strong>
+                </h4>
+                <t t-if="doc.contact_id.name is not False">
+                    <h4 style="text-align:center;">Contact Person:
+                        <span t-field="doc.contact_id.name"/>
+                    </h4>
+                </t>
+                <t t-if="doc.partner_id.mobile is not False">
+                    <h4 style="text-align:center;">Mobile:
+                        <span t-field="doc.partner_id.mobile"/>
+                    </h4>
+                </t>
+                <t t-if="doc.contact_id.mobile is not False">
+                    <h4 style="text-align:center;">Mobile:
+                        <span t-field="doc.contact_id.mobile"/>
+                    </h4>
+                </t>
+                <t t-if="doc.partner_id.phone is not False">
+                    <h4 style="text-align:center;">Phone:
+                        <span t-field="doc.partner_id.phone"/>
+                    </h4>
+                </t>
+                <t t-if="doc.partner_id.email is not False">
+                    <h4 style="text-align:center;">Email:
+                        <span t-field="doc.partner_id.email"/>
+                    </h4>
+                </t>
+                <h4 style="text-align:center;">Address:<span t-field="doc.partner_id.street"/>,
+                    <span t-field="doc.partner_id.street2"/>
+                </h4>
+                <h4 style="text-align:center;">Area:
+                    <span t-field="doc.partner_id.area_id"/>
+                </h4>
+                <h4 style="text-align:center;"><span t-field="doc.partner_id.state_id"/>,
+                    <span t-field="doc.partner_id.country_id"/>
+                </h4>
+                <h4 style="text-align:center;">Henceforth referred to as
+                    <strong>(Client)</strong>
+                </h4>
+                <!-- Contractor -->
+                <br/>
+                <h4 style="text-align:center;">
+                    <b>AND</b>
+                </h4>
+                <br/>
+                <h4 style="text-align:center;">
+                    <strong>
+                        <span t-field="company.name"/>
+                    </strong>
+                </h4>
+                <h4 style="text-align:center;">Phone:
+                    <span t-field="company.phone"/>
+                </h4>
+                <h4 style="text-align:center;">P.O Box:<span t-field="company.zip"/>,
+                    <span t-field="company.state_id"/>
+                </h4>
+                <h4 style="text-align:center;">E-mail:
+                    <span t-field="company.email"/>
+                </h4>
+                <h4 style="text-align:center;">Trade license No.:
+                    <span t-field="company.company_registry"/>
+                </h4>
+                <h4 style="text-align:center;">Tax Registration No.:
+                    <span t-field="company.vat"/>
+                </h4>
+                <h4 style="text-align:center;">Address:<span t-field="company.street"/>,
+                    <span t-field="company.street2"/>
+                </h4>
+                <h4 style="text-align:center;"><span t-field="company.state_id"/>,
+                    <span t-field="company.country_id"/>
+                </h4>
+                <h4 style="text-align:center;">Henceforth referred to as
+                    <strong>(Contractor)</strong>
+                </h4>
+                <!-- Page Break -->
+                <p style="page-break-after:always"/>
+                <!-- INTRO -->
+                <p style="text-align:left;font-size:18px;">
+                    The <strong>Contractor</strong> and the <strong>Client</strong> agreed to the below:
+                </p>
+                <!-- Details -->
+                <br/>
+                <p style="text-align:left;font-size:16px;"><strong>Project Name</strong>:
+                    <span t-field="doc.project_name"/>
+                </p>
+                <br/>
+                <p style="text-align:left;font-size:16px;"><strong>Project Location</strong>:
+                    <span t-field="doc.partner_id.area_id"/>,<span t-field="doc.partner_id.street"/>,
+                    <span t-field="doc.partner_id.street2"/>
+                </p>
+                <br/>
+                <p style="text-align:left;font-size:16px;"><strong>Service Type</strong>:
+                    <span t-field="doc.product_id"/>
+                </p>
+                <br/>
+                <!-- Scope of work -->
+                <p style="text-align:left;font-size:16px;"><strong>Scope of work</strong>:
+                </p>
+                <t t-foreach="doc.scope_of_works" t-as="value">
+                    <p>
+                        <li style="font-size:16px;" type="square">
+                            <t t-esc="value.name"/>
+                        </li>
+                    </p>
+                </t>
+                <br/>
+                <!-- Covered Areas -->
+                <p style="text-align:left;font-size:16px;"><strong>Covered Areas</strong>:
+                    <span t-field="doc.covered_area"/>
+                </p>
+                <br/>
+                <!-- Covered Pests -->
+                <t t-if="doc.select_service == 'cps'">
+                    <p style="text-align:left;font-size:16px;"><strong>Covered Pests</strong>:
+                    </p>
+                    <p style="text-align:left;font-size:16px;">
+                        The Contractor shall perform and carry out all necessary
+                        <span t-field="doc.product_id"/>
+                        on the above-mentioned site by using HYGIENE, ODERLESS and NON-STAINING PESTICIDES as per the
+                        standards of Dubai Municipality for:
+                    </p>
+                    <t t-foreach="doc.covered_pests" t-as="value">
+                        <p>
+                            <li style="font-size:16px;" type="square">
+                                <t t-esc="value.name"/>
+                            </li>
+                        </p>
+                    </t>
+                    <br/>
+                </t>
+                <!-- Contractor Obligations -->
+                <p style="text-align:left;font-size:16px;"><strong>Contractor's Obligations</strong>:
+                </p>
+                <t t-foreach="doc.contractors_obligations" t-as="value">
+                    <p>
+                        <li style="font-size:16px;" type="square">
+                            <t t-esc="value.name"/>
+                        </li>
+                    </p>
+                </t>
+                <br/>
+                <!-- Client Obligations -->
+                <p style="text-align:left;font-size:16px;"><strong>Client's Obligations</strong>:
+                </p>
+                <t t-foreach="doc.client_obligations" t-as="value">
+                    <p>
+                        <li style="font-size:16px;" type="square">
+                            <t t-esc="value.name"/>
+                        </li>
+                    </p>
+                </t>
+                <br/>
+                <!-- Frequency Of Services -->
+                <p style="text-align:left;font-size:16px;"><strong>Frequency Of Services</strong>:
+                    The <strong>Contractor</strong> shall apply recommended treatment as below
+                </p>
+                <p>
+                    <li style="font-size:16px;" type="square">
+                        <span t-field="doc.frequency_id"/>
+                    </li>
+                </p>
+                <br/>
+                <!-- Total Cost -->
+                <p style="text-align:left;font-size:16px;"><strong>Agreement Total Amount</strong>:
+                    Total agreement value is sum of
+                    <span t-field="doc.amount"
+                          t-field-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: &quot;doc.currency_id&quot;}"/>
+                </p>
+                <li style="font-size:16px;" type="square">Excluding 5% VAT (Applicable starting from 1st of January
+                    2018)
+                </li>
+                <br/>
+
+                <!-- Payment Terms -->
+                <p style="text-align:left;font-size:16px;"><strong>Payment Terms</strong>:
+                    <span t-field="doc.contract_payment"/>
+                </p>
+                <p style="text-align:left;font-size:16px;">Cheques are payable to:
+                    <span t-field="company.name"/>
+                </p>
+                <br/>
+                <!-- Credit Period -->
+                <p style="text-align:left;font-size:16px;"><strong>Credit Period</strong>:
+                    <span t-field="doc.payment_term_id.note"/>
+                </p>
+                <br/>
+                <!-- Duration -->
+                <p style="text-align:left;font-size:16px;"><strong>Agreement Duration</strong>:
+                    This agreement is valid from
+                    <span t-field="doc.date_start" t-field-options="{&quot;format&quot;: &quot;d MMMM y&quot;}"/>
+                    till
+                    <span t-field="doc.date_end" t-field-options="{&quot;format&quot;: &quot;d MMMM y&quot;}"/>
+                </p>
+                <br/>
+                <!-- Reponse Time -->
+                <t t-if="doc.select_service == 'cps'">
+                    <p style="text-align:left;font-size:16px;"><strong>Standard Response Time</strong>:
+                    </p>
+                    <p>
+                        <li style="font-size:16px;" type="square">Routine Visit - within 72 hours</li>
+                    </p>
+                    <p>
+                        <li style="font-size:16px;" type="square">Pest/insect infestation - within 24 hours</li>
+                    </p>
+                    <br/>
+                </t>
+                <!-- Callback -->
+                <p style="text-align:left;font-size:16px;"><strong>Callbacks</strong>:
+                    <span t-field="doc.callback_id"/>
+                </p>
+                <br/>
+                <!-- Agreement Cancellation -->
+                <p style="text-align:left;font-size:16px;"><strong>Agreement Cancellation</strong>:
+                    Either of the parties reserves the right to terminate the agreement with prior written
+                    notice of 30 days minimum before the expiration date (<span t-field="doc.date_end"/>)
+                </p>
+                <br/>
+                <!-- Agreement Renewal -->
+                <p style="text-align:left;font-size:16px;"><strong>Agreement Renewal</strong>:
+                    This agreement is deemed to be auto renewed unless either party provided a written
+                    termination 30 days before the expiration date (<span t-field="doc.date_end"/>)
+                </p>
+                <br/>
+                <!-- Remarks -->
+                <t t-if="doc.remarks is not False">
+                    <p style="text-align:left;font-size:16px;"><strong>Remarks</strong>:
+                        <span t-field="doc.remarks"/>
+                    </p>
+                    <br/>
+                </t>
+                <!-- Regulations -->
+                <p style="text-align:left;font-size:16px;">This Agreement will be subject to the laws and
+                    regulation of the United Arab Emirates and the Emirate of Dubai
+                </p>
+                <br/>
+                <!-- copies -->
+
+                <p style="text-align:left;font-size:16px;">This Agreement is made out in two original copies,
+                    one for each of the Parties. All original copies hereof are identical.
+                </p>
+                <br/>
+                <br/>
+                <!-- Table -->
+
+                <style>
+                    table {
+                    font-family: arial, sans-serif;font-size:16px;
+                    border-collapse: collapse;width: 100%;
+                    }
+                    td {
+                    border: 1px solid #000000;font-size:16px
+                    text-align: left; padding: 10px;
+                    }
+                    th {
+                    border: 1px solid #000000;font-size:16px;
+                    text-align: left; padding: 10px;background-color: #dddddd;
+                    }
+
+                </style>
+                <table>
+                    <tr>
+                        <th bgcolor="#FF0000">
+                            <p style="text-align:center;font-size:16px;">ON BEHALF OF</p>
+                            <p style="text-align:center;font-size:16px;">
+                                <strong>
+                                    <span t-field="company.name"/>
+                                </strong>
+                            </p>
+                        </th>
+                        <th>
+                            <p style="text-align:center;font-size:16px;">ON BEHALF OF</p>
+                            <p style="text-align:center;font-size:16px;">
+                                <strong>
+                                    <span t-field="doc.partner_id"/>
+                                </strong>
+                            </p>
+                        </th>
+                    </tr>
+                    <tr>
+                        <td width="50%">
+                            <b>Name:</b>
+                            <span t-field="doc.employee_id"/>
+                        </td>
+                        <td>
+                            <b>Name:</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Title:</b>
+                            <span t-field="doc.employee_id.job_id"/>
+                        </td>
+                        <td>
+                            <b>Title:</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Date:</b>
+                            <span t-field="doc.date" t-field-options="{&quot;format&quot;: &quot;d MMMM y&quot;}"/>
+                        </td>
+                        <td>
+                            <b>Date:</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <b>Signature and Company Seal:</b>
+                        </td>
+                        <td>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <b>Signature and Company Seal:</b>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </t>
+
+    </template>
+
+
+    <template id="report_contract">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="service_team.report_contract_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

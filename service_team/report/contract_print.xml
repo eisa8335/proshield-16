@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report
+                id="report_service_contract_draft"
+                string="Draft"
+                model="service.contract"
+                report_type="qweb-pdf"
+                file="service_team.report_contract_draft"
+                name="service_team.report_contract_draft"
+        />
+
+        <report
+                id="report_service_contract"
+                string="Contract"
+                model="service.contract"
+                report_type="qweb-pdf"
+                file="service_team.report_contract"
+                name="service_team.report_contract"
+        />
+    </data>
+</odoo>

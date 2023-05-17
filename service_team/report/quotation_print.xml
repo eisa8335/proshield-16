@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report
+                id="report_service_quotation"
+                string="Quotation"
+                model="service.quotation"
+                report_type="qweb-pdf"
+                file="service_team.report_quot"
+                name="service_team.report_quot"
+        />
+    </data>
+</odoo>
