@@ -188,11 +188,7 @@ class Contract(models.Model):
             tax_ids = [tax.id for tax in product.taxes_id]
             invoice_line_val['tax_ids'] = [(6, False, tax_ids)]
             vals['invoice_line_ids'] = [(0, 0, invoice_line_val)]
-            invoice = invoice_pool.create(vals)
-
-            # date = datetime.strptime(date, '%Y-%m-%d').date()
-            # date += relativedelta(months=date_freq)
-            # date = date.strftime('%Y-%m-%d')
+            invoice_pool.create(vals)
 
     @api.onchange('date_start')
     def onchange_date_start(self):

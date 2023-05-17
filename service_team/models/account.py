@@ -35,7 +35,7 @@ class AccountMoveInherit(models.Model):
     def _cron_check_followup(self):
         # Find all open invoices that are overdue
         invoice_ids = self.env['account.move'].search(
-            [('payment_state', '=', 'not_paid'), ('type', '=', 'out_invoice'), ('date_due', '<', fields.Date.today())])
+            [('payment_state', '=', 'not_paid'), ('move_type', '=', 'out_invoice'), ('invoice_date_due', '<', fields.Date.today())])
 
         # Get the email template for overdue invoice follow-up mail
         template_id = self.env.ref('service_team.overdue_invoice_followup_mail_inherit')
@@ -53,7 +53,7 @@ class AccountMoveInherit(models.Model):
             count = 1
             for invoice in invoices_for_user:
                 if not invoice.next_execution_date:
-                    next_execution_date = invoice.date_due + relativedelta(days=7)
+                    next_execution_date = invoice.invoice_date_due + relativedelta(days=7)
                     invoice.write({'next_execution_date': next_execution_date})
                 else:
                     next_execution_date = invoice.next_execution_date
@@ -68,7 +68,7 @@ class AccountMoveInherit(models.Model):
                     'number': invoice.number,
                     'partner_id': invoice.partner_id.name,
                     'date': invoice.invoice_date,
-                    'due_date': invoice.date_due,
+                    'due_date': invoice.invoice_date_due,
                     'amount': invoice.residual,
                 }
                 count += 1

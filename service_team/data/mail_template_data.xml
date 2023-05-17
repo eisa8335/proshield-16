@@ -8,7 +8,7 @@
             <field name="email_to">${(object.partner_id.email)}</field>
             <field name="lang">${user.lang}</field>
             <field name="model_id" ref="model_service_quotation"/>
-            <!--            <field name="report_template" ref="report_service_quotation"/>-->
+            <!--                        <field name="report_template" ref="report_service_quotation"/>-->
             <!--            <field name="report_name">Quotation</field>-->
             <field name="auto_delete" eval="True"/>
             <field name="body_html"><![CDATA[
@@ -58,44 +58,127 @@
         ]]>
             </field>
         </record>
+
         <record model="mail.template" id="service_contract_followup_mail_inherit">
             <field name="name">Service Contract Followup</field>
-            <field name="subject">Contract Followup</field>
-            <field name="model">service.contract</field>
-            <field name="auto_delete" eval="False"/>
             <field name="email_from">${(user.email)|safe}</field>
-            <field name="recipient_ids" eval="[(4,ctx.get('partner_id'))]"/>
+            <field name="subject">Contract Followup</field>
+            <field name="model_id" ref="service_team.model_service_contract"/>
+            <field name="auto_delete" eval="False"/>
+            <field name="email_to">${ctx.get('email_to')}</field>
             <field name="body_html">
                 <![CDATA[
-        <p>Hi,</p>
-        <p>Kindly Take The Followup on Below Contract.</p>
-        <table width="771" cellspacing="1" cellpadding="4" border="1" height="73">
-            <tbody>
-                <tr style="font-weight:bold;">
-                    <th>S.No</th>
-                    <th>Contract Start Date</th>
-                    <th>Contract End Date</th>
-                    <th>Contract</th>
-                    <th>Customer</th>
-                    <th>Contract Value</th>
-                </tr>
-                % if ctx.get('quotation_list'):
-                    % for values in ctx['quotation_list']:
-                        <tr>
-                            <td valign="middle" align="center">${values['serial']}</td>
-                            <td valign="middle" align="center">${values['date_start'].strftime('%Y-%m-%d')}<br/></td>
-                            <td valign="middle" align="center">${values['date_end'].strftime('%Y-%m-%d')}<br/></td>
-                            <td valign="middle" align="center">${values['name']}</td>
-                            <td valign="middle" align="center">${values['partner_id'].display_name or ''}<br/></td>
-                            <td valign="middle" align="center">${values['amount']}</td>
-                        </tr>
-                    % endfor
-                % endif
-            </tbody>
-        </table><br/>
-        <p>Thank you</p>
-        ]]>
+<p>Hi,<p>Kindly Take The Followup on Below Contract.</p><br>
+
+<table width="771" cellspacing="1" cellpadding="4" border="1" height="73">
+    <tbody>
+        <tr style="font-weight:bold;">
+            <th>S.No</th>
+            <th>Contract Start Date</th>
+            <th>Contract End Date</th>
+            <th>Contract</th>
+            <th>Customer</th>
+            <th>Contract Value</th>
+        </tr>
+        % if ctx.get('quotation_list'):
+        	% for values in ctx['quotation_list']
+		        <tr>
+		             <td valign="middle" align="center">${values['serial']}</td>
+		             <td valign="middle" align="center">${values['date_start']}<br></td>
+		             <td valign="middle" align="center">${values['date_end']}<br></td>
+		            <td valign="middle" align="center">${values['name']}</td>
+		            <td valign="middle" align="center">${values['partner_id']}<br></td>
+		            <td valign="middle" align="center">${format_amount(values['amount'], object.currency_id)}<br></td>
+		        </tr>
+       	 	% endfor
+       	 % endif
+    </tbody>
+</table><br>
+<p>Thank you</p>
+
+]]>
             </field>
+        </record>
+        <record model="mail.template" id="overdue_invoice_followup_mail_inherit">
+            <field name="name">Overdue Invoice Followup</field>
+            <field name="email_from">${(user.email)|safe}</field>
+            <field name="subject">Overdue Invoice</field>
+            <field name="model_id" ref="service_team.model_account_move"/>
+            <field name="auto_delete" eval="False"/>
+            <field name="email_to">${ctx.get('email_to')}</field>
+            <field name="body_html">
+                <![CDATA[
+<p>Hi,<p>Kindly Take The Followup on Below Overdue Invoices.</p><br>
+
+<table width="771" cellspacing="1" cellpadding="4" border="1" height="73">
+    <tbody>
+        <tr style="font-weight:bold;">
+            <th>S.No</th>
+            <th>Invoice Date</th>
+            <th>Invoice Due Date</th>
+            <th>Invoice</th>
+            <th>Customer</th>
+            <th>Amount Due</th>
+        </tr>
+        % if ctx.get('invoice_list'):
+        	% for values in ctx['invoice_list']
+		        <tr>
+		             <td valign="middle" align="center">${values['serial']}</td>
+		             <td valign="middle" align="center">${values['number']}<br></td>
+		             <td valign="middle" align="center">${values['date']}<br></td>
+		            <td valign="middle" align="center">${values['due_date']}</td>
+		            <td valign="middle" align="center">${values['partner_id']}<br></td>
+		            <td valign="middle" align="center">${format_amount(values['amount'], object.currency_id)}<br></td>
+		        </tr>
+       	 	% endfor
+       	 % endif
+    </tbody>
+</table><br>
+<p>Thank you</p>
+
+]]></field>
+        </record>
+
+        <record model="mail.template" id="hr_document_followup_mail_inherit">
+            <field name="name">Employee Document Followup</field>
+            <field name="email_from">${(user.email)|safe}</field>
+            <field name="subject">Document Expired</field>
+            <field name="model_id" ref="service_team.model_account_move"/>
+            <field name="auto_delete" eval="False"/>
+            <field name="email_to">${(user.email)|safe}</field>
+            <field name="body_html">
+                <![CDATA[
+<p>Hi,<p>Kindly Take The Followup on Below Employee Documents.</p><br>
+
+<table width="771" cellspacing="1" cellpadding="4" border="1" height="73">
+    <tbody>
+        <tr style="font-weight:bold;">
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Number</th>
+            <th>ID</th>
+            <th>Passport Expiry</th>
+            <th>DM Card Expiry</th>
+            <th>Visa Expiry</th>
+        </tr>
+        % if ctx.get('employee_details_lst'):
+        	% for values in ctx['employee_details_lst']
+		        <tr>
+		             <td valign="middle" align="center">${values['serial']}</td>
+		             <td valign="middle" align="center">${values['name']}</td>
+		             <td valign="middle" align="center">${values['number']}</td>
+		             <td valign="middle" align="center">${values['eid_expiry_date']}<br></td>
+		             <td valign="middle" align="center">${values['passport_expiry_date']}<br></td>
+		             <td valign="middle" align="center">${values['dm_card_expiry_date']}<br></td>
+		             <td valign="middle" align="center">${values['visa_expiry_date']}</td>
+		        </tr>
+       	 	% endfor
+       	 % endif
+    </tbody>
+</table><br>
+<p>Thank you</p>
+
+]]></field>
         </record>
 
     </data>

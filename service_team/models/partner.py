@@ -31,13 +31,13 @@ class Partner(models.Model):
 
     def _get_contract_count(self):
         partner_id = self.id
-        obj_pool = self.env['service.contract'].search([('partner_id', '=', partner_id)])
-        self.contract_count = len(obj_pool)
+        obj_pool = self.env['service.contract'].search_count([('partner_id', '=', partner_id)])
+        self.contract_count = obj_pool
 
     def _get_job_count(self):
         partner_id = self.id
-        obj_pool = self.env['calendar.event'].search([('partner_id', '=', partner_id)])
-        self.job_count = len(obj_pool)
+        obj_pool = self.env['calendar.event'].search_count([('partner_id', '=', partner_id)])
+        self.job_count = obj_pool
 
     def open_jobs(self):
         partner_id = self.id

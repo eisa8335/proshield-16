@@ -27,7 +27,7 @@
             <field name="name">Auto-Expiry Check For Service Contract</field>
             <field name="interval_type">hours</field>
             <field name="interval_number">6</field>
-            <field name="number_calls">-1</field>
+            <field name="numbercall">-1</field>
             <field name="active" eval="True"/>
             <field name="model_id" ref="service_team.model_service_contract"/>
             <field name="state">code</field>
@@ -40,7 +40,7 @@
             <field name="name">Contract Followup After 15 Days</field>
             <field name="interval_type">days</field>
             <field name="interval_number">1</field>
-            <field name="number_calls">-1</field>
+            <field name="numbercall">-1</field>
             <field name="doall" eval="False"/>
             <field name="active" eval="True"/>
             <field name="model_id" ref="service_team.model_service_contract"/>
@@ -50,6 +50,41 @@
             </field>
         </record>
 
+        <record id="overdue_invoice_followup_every_week" model="ir.cron">
+            <field name="name">Overdue Invoices Follow-up every Week</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_followup()</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record model="ir.cron" id="employee_document_followup">
+            <field name="name">Employee Document Followup</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_followup()</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record model="ir.cron" id="job_service_type_followup">
+            <field name="name">Job Service Type Followup after 6month+1week</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model_id" ref="calendar.model_calendar_event"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_followup()</field>
+            <field name="active" eval="True"/>
+        </record>
 
     </data>
 </odoo>
