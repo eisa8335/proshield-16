@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <template id="inherit_template_id" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[1]/div[2]" position="attributes">
+            <attribute name="style">display: none;</attribute>
+        </xpath>
+        <xpath expr="//div[1]/div[3]" position="attributes">
+            <attribute name="style">display: none;</attribute>
+        </xpath>
+    </template>
     <template id="report_contract_draft_document">
         <t t-call="web.external_layout">
             <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>

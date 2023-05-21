@@ -87,7 +87,7 @@
                             </group>
                             <group attrs="{'invisible':[('block','=',True)]}">
                                 <field name="product_id"
-                                       domain="[('detailed_type', 'in', ['product', 'service'])]"
+                                       domain="[('detailed_type', '=', 'service')]"
                                        attrs="{'required':[('block','=', False)]}"/>
                                 <field name="job_area_id" attrs="{'required':[('block','=',False)]}"/>
                                 <field name="service_description"/>

@@ -9,7 +9,7 @@
         This application has various custom forms and functionalities integrated in it and with other odoo's built in modules. 
  """,
     'website': 'https://www.fiverr.com/eisaahmed63',
-    'depends': ['base', 'hr', 'mail', 'calendar', 'account', 'fleet', 'base_geolocalize', 'purchase', 'stock'],
+    'depends': ['base', 'web', 'hr', 'mail', 'calendar', 'account', 'fleet', 'base_geolocalize', 'purchase', 'stock'],
     'data': [
         'security/ir.model.access.csv',
         'data/client.obligation.csv',

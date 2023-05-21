@@ -219,7 +219,7 @@
                     <t t-if="doc.residential is False and doc.select_service == 'qps'">
                         <p style="text-align:left;font-size:16px;"><strong>Covered Pests</strong>:
                         </p>
-                        <t t-foreach="doc.coverd_pests" t-as="value">
+                        <t t-foreach="doc.covered_pests" t-as="value">
                             <p>
                                 <li style="font-size:16px;" type="square">
                                     <t t-esc="value.name"/>
